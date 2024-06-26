@@ -31,6 +31,11 @@ export const columns: ColumnDef<z.infer<typeof Farms>, any>[] = [
   {
     accessorKey: "is_running",
     header: "الحالة",
+    cell: ({ row }) => {
+      let status = row.getValue("is_running");
+      let formatted = status == true ? "شغاله" : "متوقفه";
+      return <div className="text-center font-sm ">{formatted}</div>;
+    },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },

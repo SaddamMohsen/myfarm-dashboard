@@ -61,7 +61,7 @@ export function FarmsDataTable<TData, TValue>({
                       {headerGroup.headers.map((header) => {
                         return (
                           <TableHead
-                            className="border-1 border-slate-500 text-base antialiased bg-slate-50 font-semibold text-black"
+                            className="border-1 border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black"
                             key={header.id}>
                             {header.isPlaceholder
                               ? null

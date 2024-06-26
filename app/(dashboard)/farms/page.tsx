@@ -1,23 +1,40 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { getFarms } from "@/lib/features/farmSlice";
-import { useEffect } from "react";
-
-import { Table } from "@/components/table";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AddNewFarm } from "@/components/add-new-farm-modal";
 import { FarmsDataTable } from "./_components/data-table";
 import { columns } from "./_components/columns";
+import { useFetchAllFarmsQuery } from "@/lib/services/farms-api";
+import Loader from "@/components/loader";
+import { createClient } from "@/utils/supabase/client";
 export default function Page() {
-  const { farmsList, errorMessage, hasError, isLoading } = useAppSelector(
-    (state) => state.farms
-  );
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(getFarms());
-  }, []);
+  // const { farmsList, errorMessage, hasError, isLoading } = useAppSelector(
+  //   (state) => state.farms
+  // );
+  // const dispatch = useAppDispatch();
+  // useEffect(() => {
+  //   dispatch(getFarms());
+  // }, [isLoading]);
+  const supabase = createClient();
+  const user = supabase.auth.getUser();
+  //console.log({ user });
+  const { data, isLoading, error } = useFetchAllFarmsQuery();
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
+        <p className="text"> تحميــــــل....</p>
+        <Loader />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <p className="text-center bg-red-500 p-3 rounded-md flex justify-center items-center text-white  text-sm text-destructive">
+        Error: error in fetching data
+      </p>
+    );
+  }
   return (
     <div className="flex flex-col items-center justify-center mt-4">
       <div className="flex flex-row items-center justify-between w-full p-6">
@@ -41,7 +58,8 @@ export default function Page() {
           </Dialog>
         </div>
       </div>
-      <FarmsDataTable columns={columns} data={farmsList} />
+
+      <FarmsDataTable columns={columns} data={data || []} />
     </div>
   );
 }

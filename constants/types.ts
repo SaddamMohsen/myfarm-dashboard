@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 export const FarmType = z.enum([" بياض", " لاحم", " امهات"]);
 
 export const Farms = z.object({
@@ -16,6 +16,7 @@ export const Farms = z.object({
   is_running: z.boolean(),
   // "farm_supervisor"
 });
+export let IFarms: z.infer<typeof Farms>;
 
 export type Users = {
   id: string; // '4d9a2917-38f7-4fe9-8a0a-224503355caa',

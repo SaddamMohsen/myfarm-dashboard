@@ -12,24 +12,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { UserCircle, UserCircle2 } from "lucide-react";
-
-// import { useEffect } from "react";
+import { LogoutButton } from "./logout-button";
+import { SubmitHandler } from "react-hook-form";
+import { signOut } from "@/lib/actions/logout";
 
 export default async function AuthButton() {
   const supabase = createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = (await supabase.auth?.getUser()) ?? { data: { user: null } };
 
-  const signOut = async () => {
-    "use server";
-
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    cookies().delete("sb-flkmhzdiztimgzoshqpx-auth-token");
-    return redirect("/login");
-  };
   // useEffect(() => {
   // console.log(user);
   // }, [user]);
@@ -50,11 +43,7 @@ export default async function AuthButton() {
           <DropdownMenuLabel>حسابي</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="flex items-center justify-stretch w-full bg-white">
-            <form action={signOut}>
-              <button className="font-semibold rounded-md no-underline bg-white   hover:bg-white/40">
-                خروج
-              </button>
-            </form>
+            <LogoutButton />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

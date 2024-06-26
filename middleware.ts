@@ -1,8 +1,28 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
-
+import { createClient } from "./utils/supabase/server";
+const protectedRoutes = ["/farms"];
 export async function middleware(request: NextRequest) {
-  //console.log("in middleware", request.nextUrl);
+  const nextUrl = request.nextUrl;
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (protectedRoutes.includes(nextUrl.pathname) && !user) {
+    let callbackUrl = nextUrl.pathname;
+
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search;
+    }
+
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+
+    return NextResponse.rewrite(
+      new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+    );
+  }
+  console.log("in middleware", request.nextUrl.pathname);
   return await updateSession(request);
 }
 

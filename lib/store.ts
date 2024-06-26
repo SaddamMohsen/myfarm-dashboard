@@ -1,11 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { farmsReducer } from "./features/farmSlice";
-
+import { farmsApi } from "./services/farms-api";
 export const makeStore = () => {
   return configureStore({
     reducer: {
       farms: farmsReducer,
+      [farmsApi.reducerPath]: farmsApi.reducer,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(farmsApi.middleware),
   });
 };
 
