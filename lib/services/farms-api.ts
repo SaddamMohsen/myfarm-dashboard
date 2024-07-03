@@ -31,7 +31,24 @@ export const farmsApi = createApi({
         }
       },
     }),
+    addNewFarm: builder.mutation<FarmsResponse, z.infer<typeof Farms>>({
+      //query:({...body})=>({url:'farm',method:"POST",body:body})
+      async queryFn(arg, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          console.log(arg);
+          const res = await client.api.farms.$post({ json: arg });
+          const { farms }: { farms: FarmsResponse | any } = await res.json();
+          console.log(farms);
+          // Return the result in an object with a `data` field
+          return { data: farms };
+        } catch (error: any) {
+          console.log(error);
+          // Catch any errors and return them as an object with an `error` field
+          return { error };
+        }
+      },
+    }),
   }),
 });
 
-export const { useFetchAllFarmsQuery } = farmsApi;
+export const { useFetchAllFarmsQuery, useAddNewFarmMutation } = farmsApi;

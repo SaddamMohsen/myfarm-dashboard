@@ -8,13 +8,13 @@ export const Farms = z.object({
     required_error: "ضروري اضافة الاسم",
   }),
   farm_type: FarmType,
-  no_of_ambers: z.number({
+  no_of_ambers: z.coerce.number({
     required_error: "قم بتحديد عدد العنابر",
   }),
   farm_start_date: z.optional(z.string()),
   farm_end_date: z.optional(z.string()),
   is_running: z.boolean(),
-  // "farm_supervisor"
+  farm_supervisor: z.optional(z.string()),
 });
 export let IFarms: z.infer<typeof Farms>;
 
@@ -29,4 +29,11 @@ export type Users = {
   last_sign_in_at: string; // '2024-06-08T18:27:40.761928Z',
   app_metadata: any; // { provider: 'email', providers: [ 'email' ] },
   user_metadata: any; //{ farm_id: 1, schema: 'al_watania' },
+};
+
+export type SuperVisor = {
+  name: string;
+  id: string;
+  phone_numbers: number;
+  details: string;
 };

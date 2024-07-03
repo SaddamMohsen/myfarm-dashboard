@@ -13,9 +13,11 @@ import {
 } from "./ui/form";
 import { useTransition } from "react";
 import { Button } from "./ui/button";
-
+import { useAddNewFarmMutation } from "@/lib/services/farms-api";
+import { toNamespacedPath } from "path";
 export const AddNewFarm = () => {
   const [isPending, setTransation] = useTransition();
+  const [addFarm, { isLoading }] = useAddNewFarmMutation();
   const form = useForm<z.infer<typeof Farms>>({
     resolver: zodResolver(Farms),
     defaultValues: {
@@ -26,14 +28,20 @@ export const AddNewFarm = () => {
       farm_start_date: new Date().toLocaleDateString(),
       is_running: true,
       no_of_ambers: 1,
+      farm_supervisor: "",
     },
   });
   const onInvalid = (invErrors: any) => {
     console.error(invErrors);
   };
 
-  const onSubmit = (values: z.infer<typeof Farms>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof Farms>) => {
+    console.log("in submit handler");
+    try {
+      addFarm(values).unwrap();
+    } catch (e: any) {
+      console.log("error in submit", e);
+    }
   };
   return (
     <Form {...form}>
@@ -74,7 +82,7 @@ export const AddNewFarm = () => {
                     <Input
                       {...field}
                       disabled={isPending}
-                      placeholder="عدد العنابر"
+                      placeholder="0"
                       type="number"
                     />
                   </FormControl>
@@ -84,6 +92,26 @@ export const AddNewFarm = () => {
               )}
             />
           </div>
+          {/* <FormField
+            control={form.control}
+            name="farm_supervisor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xl font-medium">
+                  عدد العنابر
+                </FormLabel>
+                <FormControl>
+                  <select
+                    {...field}
+                    disabled={isPending}
+                    defaultValue={["ali", "saddam"]}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
           <Button type="submit" variant="default">
             Save
           </Button>

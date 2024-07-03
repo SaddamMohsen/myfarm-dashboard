@@ -31,7 +31,7 @@ export default function Page() {
   if (error) {
     return (
       <p className="text-center bg-red-500 p-3 rounded-md flex justify-center items-center text-white  text-sm text-destructive">
-        Error: error in fetching data
+        حطأ في عملية الحصول على البيانات
       </p>
     );
   }
