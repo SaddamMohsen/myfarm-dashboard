@@ -1,4 +1,5 @@
 "use client";
+import { Loader2 } from "lucide-react";
 import React from "react";
 
 export default function Loader() {
@@ -19,7 +20,9 @@ export default function Loader() {
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only">
+        <Loader2 />
+      </span>
     </div>
   );
 }

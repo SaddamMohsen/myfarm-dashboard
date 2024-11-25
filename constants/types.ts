@@ -2,7 +2,7 @@ import { z } from "zod";
 export const FarmType = z.enum([" بياض", " لاحم", " امهات"]);
 
 export const Farms = z.object({
-  id: z.optional(z.string()),
+  id:z.optional(z.string()),
   created_at: z.optional(z.date()),
   farm_name: z.string({
     required_error: "ضروري اضافة الاسم",
@@ -16,7 +16,7 @@ export const Farms = z.object({
   is_running: z.boolean(),
   farm_supervisor: z.optional(z.string()),
 });
-export let IFarms: z.infer<typeof Farms>;
+export type IFarms= z.infer<typeof Farms>;
 
 export type Users = {
   id: string; // '4d9a2917-38f7-4fe9-8a0a-224503355caa',
@@ -37,3 +37,9 @@ export type SuperVisor = {
   phone_numbers: number;
   details: string;
 };
+export const superVisorSchema = z.object({
+  name: z.string().min(1, "Name is required"), // Ensures name is a non-empty string
+  //id: z.string().min(1, "ID is required"), // Ensures id is a non-empty string
+  phone_numbers: z.number().int().positive("Phone number must be a positive integer"), // Ensures phone_numbers is a positive integer
+  details: z.string().optional(), // Ensures details is a string and is optional
+});

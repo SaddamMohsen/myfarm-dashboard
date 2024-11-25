@@ -35,10 +35,10 @@ export const getFarms = createAsyncThunk<any>(
       //   .from("farms")
       //   .select();
       // return farms;
-      const res = await client.api.farms.$get();
-      const { farms } = await res.json();
-      console.log(farms);
-      return farms;
+      // const res = await client.api.farms.$get();
+      // const { farms } = await res.json();
+      // console.log(farms);
+      // return farms;
     } catch (e) {
       console.log(e);
       throw e;

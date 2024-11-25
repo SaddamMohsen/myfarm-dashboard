@@ -4,21 +4,29 @@ import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Farms } from "@/constants/types";
+import {IFarms} from  "@/constants/types";
 //import { cookies } from "next/headers";
 
 const supabase = createClient();
 
 const app = new Hono<Env>()
   .get("/", async (c) => {
+    try{
     const schema = c.var.user?.user_metadata.schema;
 
-    const { data: farms, error }: { data: any; error: any } = await supabase
+    //const { data: farms, error }: { data: any; error: any } =
+    const {data}= await supabase
       .schema(schema)
       .from("farms")
-      .select();
-    console.log(farms);
-    console.log(error);
-    return c.json({ farms });
+      .select()
+      .returns<IFarms>();
+    
+    //console.log(data);
+    return c.json({farms: data });
+    }catch(error:any){
+      console.log('error in get farms',error);
+      return c.json({error:'error in get farms'},400);
+    }
   })
   .post(
     "/",

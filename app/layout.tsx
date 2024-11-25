@@ -19,8 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <StoreProvider>
-      <html lang="en" dir="rtl" className={GeistSans.className}>
-        <body className="bg-background text-foreground">
+      <html lang="en"  className={GeistSans.className}>
+        <body>
           <main className="min-h-screen flex flex-col w-full items-center">
             {children}
           </main>

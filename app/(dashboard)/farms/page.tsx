@@ -8,6 +8,9 @@ import { columns } from "./_components/columns";
 import { useFetchAllFarmsQuery } from "@/lib/services/farms-api";
 import Loader from "@/components/loader";
 import { createClient } from "@/utils/supabase/client";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import FarmInputForm from './_components/farm-input-form';
 export default function Page() {
   // const { farmsList, errorMessage, hasError, isLoading } = useAppSelector(
   //   (state) => state.farms
@@ -16,6 +19,7 @@ export default function Page() {
   // useEffect(() => {
   //   dispatch(getFarms());
   // }, [isLoading]);
+  //const [isOpen, setIsOpen] = useState(open)
   const supabase = createClient();
   const user = supabase.auth.getUser();
   //console.log({ user });
@@ -24,26 +28,32 @@ export default function Page() {
     return (
       <div className="flex justify-center items-center border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
         <p className="text"> تحميــــــل....</p>
-        <Loader />
+        <Loader2 className="w-4" />
       </div>
     );
   }
   if (error) {
     return (
+      <div dir="rtl" className="flex flex-col items-center justify-center mt-4">
+      <div className="flex flex-row items-center justify-between w-full p-6">
       <p className="text-center bg-red-500 p-3 rounded-md flex justify-center items-center text-white  text-sm text-destructive">
         حطأ في عملية الحصول على البيانات
       </p>
+      <FarmInputForm  />
+      </div>
+      </div>
     );
   }
   return (
-    <div className="flex flex-col items-center justify-center mt-4">
+    <div dir="rtl" className="flex flex-col items-center justify-center mt-4">
       <div className="flex flex-row items-center justify-between w-full p-6">
         <h1 className="text-2xl font-bold ">قائمة المزارع</h1>
         <div>
-          <Dialog>
+        <FarmInputForm  />
+          {/* <Dialog>
             <DialogTrigger asChild>
               <Button
-                className="w-full lg:w-auto bg-[#E7422C] font-semibold text-xl justify-between  hover:bg-[#E7422C]/20 hover:text-white
+                className="w-full lg:w-auto bg-gradient-to-b from-blue-500 to to-blue-700 font-semibold text-xl justify-between  hover:bg-[#E7422C]/20 hover:text-white
         border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none
         text-white focus:bg-[#E7422C]/70 transition-all">
                 اضافة مزرعة
@@ -53,13 +63,14 @@ export default function Page() {
               onInteractOutside={(e) => {
                 e.preventDefault();
               }}>
-              <AddNewFarm />
+            
             </DialogContent>
-          </Dialog>
+          </Dialog> */}
         </div>
       </div>
-
-      <FarmsDataTable columns={columns} data={data || []} />
+      {data&&
+      <FarmsDataTable columns={columns} data={data||null} />
+      }
     </div>
   );
 }

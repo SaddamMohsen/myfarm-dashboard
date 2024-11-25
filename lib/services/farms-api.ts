@@ -6,12 +6,18 @@ import {
 import { Farms } from "@/constants/types";
 import { client } from "../hono-client";
 import { z } from "zod";
+import { InferRequestType, InferResponseType } from "hono";
 
-type FarmsResponse = {
-  farms?: z.infer<typeof Farms>[];
-  error?: string;
-};
 
+// type FarmsResponse = {
+//   farms?: z.infer<typeof Farms>[];
+//   error?: string;
+// };
+type FarmsResponse = InferResponseType<
+  typeof client.api.farms.$get
+>;
+
+type FarmPostRequsetType=InferRequestType<typeof client.api.farms.$post>['json'];
 export const farmsApi = createApi({
   reducerPath: "farmsApi",
   tagTypes: ["Farms"],
@@ -21,30 +27,44 @@ export const farmsApi = createApi({
       async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
         try {
           const res = await client.api.farms.$get();
-          const { farms }: { farms: FarmsResponse } = await res.json();
+          //@ts-ignore
+          const {farms} = await res.json();
+          
+          console.log(farms);
+
           // Return the result in an object with a `data` field
           return { data: farms };
         } catch (error: any) {
           console.log(error);
-          // Catch any errors and return them as an object with an `error` field
-          return { error };
-        }
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+        };
+      }
       },
     }),
-    addNewFarm: builder.mutation<FarmsResponse, z.infer<typeof Farms>>({
+    addNewFarm: builder.mutation<FarmsResponse|any, FarmPostRequsetType>({
       //query:({...body})=>({url:'farm',method:"POST",body:body})
       async queryFn(arg, _queryApi, _extraOptions, _baseQuery) {
         try {
           console.log(arg);
           const res = await client.api.farms.$post({ json: arg });
-          const { farms }: { farms: FarmsResponse | any } = await res.json();
-          console.log(farms);
+          const response = await res.json();
+          // console.log(farms);
           // Return the result in an object with a `data` field
-          return { data: farms };
+          return { data: response };
         } catch (error: any) {
           console.log(error);
-          // Catch any errors and return them as an object with an `error` field
-          return { error };
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+        };
         }
       },
     }),

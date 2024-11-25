@@ -41,7 +41,7 @@ export default async function AuthButton() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-30 bg-white" align="start">
           <DropdownMenuLabel>حسابي</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator /> 
           <DropdownMenuItem className="flex items-center justify-stretch w-full bg-white">
             <LogoutButton />
           </DropdownMenuItem>
