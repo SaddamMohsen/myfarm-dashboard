@@ -24,7 +24,7 @@ export default function Page() {
   const supabase = createClient();
   const user = supabase.auth.getUser();
   //console.log({ user });
-  const { data, isLoading, error } = useFetchAllFarmsQuery<Farms[]|any>();
+  const { data, isLoading, error } = useFetchAllFarmsQuery();
   if (isLoading) {
     return (
       <div className="flex justify-center items-center border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
@@ -70,7 +70,7 @@ export default function Page() {
         </div>
       </div>
       {data&&
-      <FarmsDataTable columns={columns} data={data||[]} />
+      <FarmsDataTable columns={columns} data={data} />
       }
     </div>
   );

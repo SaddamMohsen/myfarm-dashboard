@@ -23,7 +23,7 @@ export const farmsApi = createApi({
   tagTypes: ["Farms"],
   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
   endpoints: (builder) => ({
-    fetchAllFarms: builder.query<FarmsResponse, void>({
+    fetchAllFarms: builder.query<Farms[], void>({
       async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
         try {
           const res = await client.api.farms.$get();
@@ -46,7 +46,7 @@ export const farmsApi = createApi({
       }
       },
     }),
-    addNewFarm: builder.mutation<FarmsResponse|any, FarmPostRequsetType>({
+    addNewFarm: builder.mutation<Farms|any, FarmPostRequsetType>({
       //query:({...body})=>({url:'farm',method:"POST",body:body})
       async queryFn(arg, _queryApi, _extraOptions, _baseQuery) {
         try {

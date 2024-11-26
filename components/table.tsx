@@ -1,5 +1,4 @@
 import { Farms } from "@/constants/types";
-import * as z from "zod";
 
 export const Table = ({
   farmsList,
