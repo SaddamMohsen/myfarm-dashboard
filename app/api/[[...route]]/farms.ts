@@ -3,8 +3,8 @@ import { Hono } from "hono";
 import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { Farms } from "@/constants/types";
-import {IFarms} from  "@/constants/types";
+import { Farms,farmSchema } from "@/constants/types";
+
 //import { cookies } from "next/headers";
 
 const supabase = createClient();
@@ -19,7 +19,7 @@ const app = new Hono<Env>()
       .schema(schema)
       .from("farms")
       .select()
-      .returns<IFarms>();
+      .returns<Farms>();
     
     //console.log(data);
     return c.json({farms: data });
@@ -30,7 +30,7 @@ const app = new Hono<Env>()
   })
   .post(
     "/",
-    zValidator("json", Farms, (result, c) => {
+    zValidator("json", farmSchema, (result, c) => {
       if (!result.success) {
         console.log("invalid");
         return c.text("Invalid Values!", 400);

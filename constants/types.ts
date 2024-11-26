@@ -1,9 +1,23 @@
 import { z } from "zod";
 export const FarmType = z.enum([" بياض", " لاحم", " امهات"]);
 
-export const Farms = z.object({
-  id:z.optional(z.string()),
-  created_at: z.optional(z.date()),
+// export const Farms = z.object({
+//   id:z.optional(z.string()),
+//   created_at: z.optional(z.date()),
+//   farm_name: z.string({
+//     required_error: "ضروري اضافة الاسم",
+//   }),
+//   farm_type: FarmType,
+//   no_of_ambers: z.coerce.number({
+//     required_error: "قم بتحديد عدد العنابر",
+//   }),
+//   farm_start_date: z.optional(z.string()),
+//   farm_end_date: z.optional(z.string()),
+//   is_running: z.boolean(),
+//   farm_supervisor: z.optional(z.string()),
+// });
+export const farmSchema = z.object({
+  id:z.optional(z.number()),
   farm_name: z.string({
     required_error: "ضروري اضافة الاسم",
   }),
@@ -11,12 +25,13 @@ export const Farms = z.object({
   no_of_ambers: z.coerce.number({
     required_error: "قم بتحديد عدد العنابر",
   }),
-  farm_start_date: z.optional(z.string()),
-  farm_end_date: z.optional(z.string()),
+  created_at: z.optional(z.date()),
+  farm_start_date: z.date().optional(),
+  farm_end_date: z.date().optional(),
   is_running: z.boolean(),
-  farm_supervisor: z.optional(z.string()),
-});
-export type IFarms= z.infer<typeof Farms>;
+  farm_supervisor: z.string().optional(),
+})
+export type Farms= z.infer<typeof farmSchema>;
 
 export type Users = {
   id: string; // '4d9a2917-38f7-4fe9-8a0a-224503355caa',

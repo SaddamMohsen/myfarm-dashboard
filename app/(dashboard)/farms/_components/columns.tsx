@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link, EyeIcon, ArrowDownRightIcon } from "lucide-react";
 
-export const columns: ColumnDef<z.infer<typeof Farms>, any>[] = [
+export const columns: ColumnDef<Farms, any>[] = [
   {
     accessorKey: "farm_name",
     header: "اسم المزرعة",

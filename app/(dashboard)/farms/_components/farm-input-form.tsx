@@ -40,23 +40,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import {farmSchema} from "@/constants/types";
 
-// Assuming FarmType is an enum, we'll define it here
-const FarmType = z.enum(['بياض', 'لاحم', 'امهات'])
 
-const farmSchema = z.object({
-  farm_name: z.string({
-    required_error: "ضروري اضافة الاسم",
-  }),
-  farm_type: FarmType,
-  no_of_ambers: z.coerce.number({
-    required_error: "قم بتحديد عدد العنابر",
-  }),
-  farm_start_date: z.date().optional(),
-  farm_end_date: z.date().optional(),
-  is_running: z.boolean(),
-  farm_supervisor: z.string().optional(),
-})
+
 
 
 

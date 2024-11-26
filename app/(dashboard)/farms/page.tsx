@@ -11,6 +11,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import FarmInputForm from './_components/farm-input-form';
+import { Farms } from "@/constants/types";
 export default function Page() {
   // const { farmsList, errorMessage, hasError, isLoading } = useAppSelector(
   //   (state) => state.farms
@@ -23,7 +24,7 @@ export default function Page() {
   const supabase = createClient();
   const user = supabase.auth.getUser();
   //console.log({ user });
-  const { data, isLoading, error } = useFetchAllFarmsQuery();
+  const { data, isLoading, error } = useFetchAllFarmsQuery<Farms[]|any>();
   if (isLoading) {
     return (
       <div className="flex justify-center items-center border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
@@ -69,7 +70,7 @@ export default function Page() {
         </div>
       </div>
       {data&&
-      <FarmsDataTable columns={columns} data={data||null} />
+      <FarmsDataTable columns={columns} data={data||[]} />
       }
     </div>
   );

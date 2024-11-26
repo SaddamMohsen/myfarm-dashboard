@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { FarmType, Farms } from "@/constants/types";
+import { FarmType, Farms ,farmSchema} from "@/constants/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import * as z from "zod";
@@ -18,14 +18,14 @@ import { toNamespacedPath } from "path";
 export const AddNewFarm = () => {
   const [isPending, setTransation] = useTransition();
   const [addFarm, { isLoading }] = useAddNewFarmMutation();
-  const form = useForm<z.infer<typeof Farms>>({
-    resolver: zodResolver(Farms),
+  const form = useForm<Farms>({
+    resolver: zodResolver(farmSchema),
     defaultValues: {
       farm_name: "",
       created_at: new Date(),
       farm_type: FarmType.Enum[" بياض"],
-      farm_end_date: new Date().toLocaleDateString(),
-      farm_start_date: new Date().toLocaleDateString(),
+      farm_end_date: new Date(),
+      farm_start_date: new Date(),
       is_running: true,
       no_of_ambers: 1,
       farm_supervisor: "",
@@ -35,7 +35,7 @@ export const AddNewFarm = () => {
     console.error(invErrors);
   };
 
-  const onSubmit = async (values: z.infer<typeof Farms>) => {
+  const onSubmit = async (values: Farms) => {
     console.log("in submit handler");
     try {
       addFarm(values).unwrap();

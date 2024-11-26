@@ -4,14 +4,14 @@ import * as z from "zod";
 export const Table = ({
   farmsList,
 }: {
-  farmsList: z.infer<typeof Farms>[];
+  farmsList: Farms[];
 }) => {
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {farmsList?.map((invoice: z.infer<typeof Farms>) => (
+            {farmsList?.map((invoice:Farms) => (
               <div
                 key={invoice.id}
                 className="mb-2 w-full rounded-md bg-white p-4">
@@ -29,9 +29,9 @@ export const Table = ({
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
                     <p className="text-xl font-medium">
-                      {invoice?.farm_start_date ?? "not specified"}
+                      {invoice?.farm_start_date?.toDateString() ?? "not specified"}
                     </p>
-                    <p>{invoice.farm_end_date ?? "Not specified"}</p>
+                    <p>{invoice.farm_end_date?.toDateString() ?? "Not specified"}</p>
                   </div>
                   {/* <div className="flex justify-end gap-2">
                     <UpdateInvoice id={invoice.id} />
@@ -65,7 +65,7 @@ export const Table = ({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {farmsList?.map((invoice: z.infer<typeof Farms>) => (
+              {farmsList?.map((invoice:  Farms) => (
                 <tr
                   key={invoice.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
@@ -88,7 +88,7 @@ export const Table = ({
                     {invoice.no_of_ambers}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {invoice.farm_end_date}
+                    {invoice.farm_end_date?.toDateString()}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {invoice.is_running}
@@ -96,7 +96,7 @@ export const Table = ({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {invoice.farm_end_date}
+                      {invoice.farm_end_date?.toDateString()}
                       {/* <UpdateInvoice id={invoice.id} />
                       <DeleteInvoice id={invoice.id} /> */}
                     </div>

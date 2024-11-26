@@ -8,7 +8,7 @@ import { client } from "../hono-client";
 export interface farmsState {
   hasError: boolean;
   errorMessage: string;
-  farmsList: z.infer<typeof Farms>[];
+  farmsList: Farms[];
   isLoading: boolean;
 }
 const initialState: farmsState = {
@@ -56,7 +56,7 @@ export const farmsSlice = createSlice({
     });
     builder.addCase(
       getFarms.fulfilled,
-      (state: farmsState, action: PayloadAction<z.infer<typeof Farms>[]>) => {
+      (state: farmsState, action: PayloadAction<Farms[]>) => {
         state.isLoading = false;
         state.farmsList = action.payload;
       }
