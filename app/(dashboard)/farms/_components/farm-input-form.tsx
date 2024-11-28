@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useState, useTransition } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -40,30 +40,59 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import {farmSchema} from "@/constants/types";
-
-
-
-
-
+import {Farms, farmSchema} from "@/constants/types";
+import { useAddNewFarmMutation } from '@/lib/services/farms-api'
 
 export default function FarmInputForm() {
- const [isOpen,setIsOpen]=useState(false);
-
-  const form = useForm<z.infer<typeof farmSchema>>({
+  const [isOpen,setIsOpen]=useState(false);
+  const [error,setError]=useState('');
+  const [addFarm, { isLoading }] = useAddNewFarmMutation();
+  const form = useForm<Farms>({
     resolver: zodResolver(farmSchema),
     defaultValues: {
-      farm_name: '',
-      no_of_ambers: 0,
-      is_running: false,
-      farm_supervisor: '',
+      farm_name: "",
+      created_at: new Date().toDateString(),
+      farm_type: 'بياض',
+      //farm_end_date: new Date().toDateString(),
+      farm_start_date: new Date(),
+      is_running: true,
+      no_of_ambers: 1,
+      farm_supervisor: "",
     },
-  })
+  });
+  const onInvalid = (invErrors: any) => {
+    console.log(invErrors);
+    setError(invErrors);
+          setTimeout(()=>
+          setError(''),5000);
+    
+  };
 
-  function onSubmit(values: z.infer<typeof farmSchema>) {
-    console.log(values)
-    setIsOpen(false)
-  }
+  const onSubmit = async (values: Farms) => {
+    console.log("in submit handler",typeof (values.farm_start_date));
+    //const newValues={...values,farm_start_date:new Date(values?.farm_start_date??'')}
+    try {
+      addFarm({newFarm:values}).unwrap().then((payload)=>{
+        if(payload.success)
+        {
+          console.log('تم اضافة بيانات المزرعة بنجاح')
+          setIsOpen(false)
+        }
+        else{
+          console.log('error',payload.error);
+          setError(payload.error);
+          setTimeout(()=>
+          setError(''),5000);
+        }
+       })
+     
+    } catch (error) {
+      console.log('خطا في اضافة بيانات المزرعة', error);
+    };
+   
+  };
+
+  
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -163,7 +192,7 @@ export default function FarmInputForm() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormDescription className='text-slate-200/20 text-xs' >بناء على هذا التاريخ سوف يتم حساب عمر الدجاج</FormDescription>
+                  <FormDescription className='text-blue-400 text-xs' >بناء على هذا التاريخ سوف يتم حساب عمر الدجاج</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -247,6 +276,9 @@ export default function FarmInputForm() {
         border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none
         text-white focus:bg-[#E7422C]/70 transition-all">حفظ بيانات المزرعة</Button>
           </form>
+          {error&&(
+            <div>{error}</div>
+          )}
         </Form>
       </SheetContent>
     </Sheet>

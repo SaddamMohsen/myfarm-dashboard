@@ -3,7 +3,7 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { Farms } from "@/constants/types";
+import { Farms, SuperVisor } from "@/constants/types";
 import { client } from "../hono-client";
 import { z } from "zod";
 import { InferRequestType, InferResponseType } from "hono";
@@ -16,7 +16,9 @@ import { InferRequestType, InferResponseType } from "hono";
 type FarmsResponse = InferResponseType<
   typeof client.api.farms.$get
 >;
-
+type SuperVisorResponse=InferResponseType<
+typeof client.api.supervisors.$get
+>;
 type FarmPostRequsetType=InferRequestType<typeof client.api.farms.$post>['json'];
 export const farmsApi = createApi({
   reducerPath: "farmsApi",
@@ -29,10 +31,6 @@ export const farmsApi = createApi({
           const res = await client.api.farms.$get();
           //@ts-ignore
           const {farms} = await res.json();
-          
-          console.log(farms);
-
-          // Return the result in an object with a `data` field
           return { data: farms };
         } catch (error: any) {
           console.log(error);
@@ -46,14 +44,15 @@ export const farmsApi = createApi({
       }
       },
     }),
-    addNewFarm: builder.mutation<Farms|any, FarmPostRequsetType>({
+    addNewFarm: builder.mutation<Farms|any,{newFarm: FarmPostRequsetType}>({
       //query:({...body})=>({url:'farm',method:"POST",body:body})
-      async queryFn(arg, _queryApi, _extraOptions, _baseQuery) {
+      async queryFn(newFarm, _queryApi, _extraOptions, _baseQuery) {
         try {
-          console.log(arg);
-          const res = await client.api.farms.$post({ json: arg });
+          const data = newFarm.newFarm
+          console.log(newFarm);
+          const res = await client.api.farms.$post( {json:data} );
           const response = await res.json();
-          // console.log(farms);
+           console.log(response);
           // Return the result in an object with a `data` field
           return { data: response };
         } catch (error: any) {
@@ -68,7 +67,27 @@ export const farmsApi = createApi({
         }
       },
     }),
+    fetchSupervisors:builder.query<SuperVisor[],void>({
+      async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.supervisors.$get();
+          //@ts-ignore
+          const {supervisors} = await res.json();
+          console.log('supervisors',supervisors);
+          return { data: supervisors };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+        };
+      }
+      },
+    })
   }),
 });
 
-export const { useFetchAllFarmsQuery, useAddNewFarmMutation } = farmsApi;
+export const { useFetchAllFarmsQuery, useAddNewFarmMutation,useFetchSupervisorsQuery } = farmsApi;

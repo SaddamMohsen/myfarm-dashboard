@@ -15,14 +15,16 @@ const app = new Hono<Env>()
       const schema = c.var.user?.user_metadata.schema;
 
       //const { data: farms, error }: { data: any; error: any } =
-      const { data } = await supabase
+      const { data,error } = await supabase
         .schema(schema)
         .from("supervisors")
-        .select()
+        .select(`name,phone_numbers,farms(
+          farm_name,
+          farm_supervisor)`)
         .returns<SuperVisors>();
-
+console.log('data from supervisor',data,error);
       //console.log(data);
-      return c.json({ farms: data });
+      return c.json({ supervisors: data });
     } catch (error: any) {
       console.log("error in get supervisors", error);
       return c.json({ error: "error in get supervisors" }, 400);

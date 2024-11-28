@@ -21,13 +21,13 @@ export const farmSchema = z.object({
   farm_name: z.string({
     required_error: "ضروري اضافة الاسم",
   }),
-  farm_type: FarmType,
+  farm_type:z.enum(['بياض',"لاحم","امهات"]),
   no_of_ambers: z.coerce.number({
     required_error: "قم بتحديد عدد العنابر",
   }),
-  created_at: z.optional(z.date()),
-  farm_start_date: z.date().optional(),
-  farm_end_date: z.date().optional(),
+  created_at: z.optional(z.string()),
+  farm_start_date: z.coerce.date(),
+  farm_end_date: z.string().optional(),
   is_running: z.boolean(),
   farm_supervisor: z.string().optional(),
 })
@@ -48,12 +48,13 @@ export type Users = {
 
 export type SuperVisor = {
   name: string;
-  id: string;
+  id:string;
+  uuid: string;
   phone_numbers: number;
   details: string;
 };
 export const superVisorSchema = z.object({
-  name: z.string().min(1, "Name is required"), // Ensures name is a non-empty string
+  name: z.string().min(6, "Name is required"), // Ensures name is a non-empty string
   //id: z.string().min(1, "ID is required"), // Ensures id is a non-empty string
   phone_numbers: z.number().int().positive("Phone number must be a positive integer"), // Ensures phone_numbers is a positive integer
   details: z.string().optional(), // Ensures details is a string and is optional

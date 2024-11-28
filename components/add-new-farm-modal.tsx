@@ -23,7 +23,7 @@ export const AddNewFarm = () => {
     defaultValues: {
       farm_name: "",
       created_at: new Date(),
-      farm_type: FarmType.Enum[" بياض"],
+      farm_type: 'بياض',
       farm_end_date: new Date(),
       farm_start_date: new Date(),
       is_running: true,
@@ -38,7 +38,7 @@ export const AddNewFarm = () => {
   const onSubmit = async (values: Farms) => {
     console.log("in submit handler");
     try {
-      addFarm(values).unwrap();
+      addFarm({newFarm:values}).unwrap();
     } catch (e: any) {
       console.log("error in submit", e);
     }

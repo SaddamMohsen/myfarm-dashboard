@@ -32,15 +32,24 @@ const app = new Hono<Env>()
     "/",
     zValidator("json", farmSchema, (result, c) => {
       if (!result.success) {
-        console.log("invalid");
+        console.log("invalid values",result.error);
         return c.text("Invalid Values!", 400);
       }
     }),
     async (c) => {
-      console.log("in post farm");
-      const farm = c.req.valid("json");
-      console.log("farm in post", farm);
-      return c.json({ farms: "success" });
+      const schema = c.var.user?.user_metadata.schema;
+    
+      try {
+        const farm = c.req.valid("json");
+        console.log("in post farm",farm);
+       const res =await supabase.schema(schema).from("farms").insert(farm).returns();
+       console.log('response from insert farm',res);
+        return c.json({ farms: "success" });
+      } catch (error:any) {
+        console.log("error in post farm", error);
+        return c.json({ error: "error in post farm" }, 400);
+        
+      }
     }
   );
 

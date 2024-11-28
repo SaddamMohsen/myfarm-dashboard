@@ -47,7 +47,6 @@ export function FarmsDataTable<TData, TValue>({
   return (
     <div className="  flex w-full flex-col   md:p-4">
       <h1 className={` mb-8 text-xl md:text-2xl`}>قائمة المزارع</h1>
-      {/* <DataTableToolbar table={table} type="coupons" label="Filtered Coupons ..." /> */}
       <div className=" mt-6  flow-root md:w-full w-auto">
         <div className="overflow-x-auto">
           <div className="inline-grid md:min-w-full w-auto align-middle">

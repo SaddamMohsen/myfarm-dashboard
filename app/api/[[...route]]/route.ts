@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import farms from "./farms";
+import supervisors from "./supervisors";
 import { getCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
@@ -11,7 +12,7 @@ export const runtime = "edge";
 ///TODO add a middleware to check roles of user
 export type Env = {
   Variables: {
-    user: User | any;
+    user:  any;
   };
 };
 const authUserMiddleware = createMiddleware<Env>(async (c, next) => {
@@ -86,23 +87,24 @@ app.use(authUserMiddleware);
 //   await next();
 // });
 
-app.get("/supervisors", async (c) => {
-  const supabase = createClient();
+// app.get("/supervisors", async (c) => {
+//   const supabase = createClient();
 
-  let schema = c.var.user?.user_metadata.schema;
-  let farmId: number = c.var.user?.user_metadata.farm_id;
-  console.log(c.var.user.role);
-  console.log(farmId);
-  const { data, error } = await supabase
-    .schema(schema)
-    .from("supervisors")
-    .select("*");
-  //.eq("farm_id", farmId);
-  console.log(data);
-  console.log(error);
-  return c.json({ data });
-});
-const routes = app.route("/farms", farms);
+//   let schema = c.var.user?.user_metadata.schema;
+//   let farmId: number = c.var.user?.user_metadata.farm_id;
+//   console.log(c.var.user.role);
+//   console.log(farmId);
+//   const { data, error } = await supabase
+//     .schema(schema)
+//     .from("supervisors")
+//     .select("*");
+//   //.eq("farm_id", farmId);
+//   console.log(data);
+//   console.log(error);
+//   return c.json({ data });
+// });
+const routes = app.route("/farms", farms)
+ .route('supervisors',supervisors);
 // app.get("/hello", (c) => {
 //   return c.json({
 //     message: "Hello Next.js! from Hono",
