@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useState, useTransition } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState, useTransition } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -40,13 +40,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import {Farms, farmSchema} from "@/constants/types";
-import { useAddNewFarmMutation } from '@/lib/services/farms-api'
+import {Farms, farmSchema, SuperVisor} from "@/constants/types";
+import { useAddNewFarmMutation ,useFetchFreeSupervisorsQuery} from '@/lib/services/farms-api'
 
-export default function FarmInputForm() {
-  const [isOpen,setIsOpen]=useState(false);
+export default function FarmInputForm({open}:{open:boolean}) {
+  const [isOpen,setIsOpen]=useState(open);
   const [error,setError]=useState('');
   const [addFarm, { isLoading }] = useAddNewFarmMutation();
+  const {data:supervisorsFree} = useFetchFreeSupervisorsQuery();
+  const [supervisors,setSupervisors]=useState<SuperVisor[]|null>(null);
   const form = useForm<Farms>({
     resolver: zodResolver(farmSchema),
     defaultValues: {
@@ -60,6 +62,19 @@ export default function FarmInputForm() {
       farm_supervisor: "",
     },
   });
+  // if(supervisorsFree === undefined)
+  //   {
+  //     return <div>Loading...</div>;
+  //   }
+
+ 
+
+  useEffect(()=>{
+    if(supervisorsFree !==undefined){
+      setSupervisors(supervisorsFree)
+    }
+  },[supervisorsFree])
+  
   const onInvalid = (invErrors: any) => {
     console.log(invErrors);
     setError(invErrors);
@@ -141,7 +156,7 @@ export default function FarmInputForm() {
                       <SelectItem value="امهات">امهات</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage onError={()=>console.log(error)} />
                 </FormItem>
               )}
             />
@@ -259,19 +274,34 @@ export default function FarmInputForm() {
                 </FormItem>
               )}
             />
-            <FormField
+           {supervisorsFree&& <FormField
               control={form.control}
               name="farm_supervisor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>مشرف المزرعة</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter supervisor name" {...field} />
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                   
+                      <SelectTrigger>
+                        <SelectValue placeholder="حدد مشرف المزرعة"  />
+                      </SelectTrigger>
+                    
+                      <SelectContent   dir='rtl' className='bg-slate-50'>
+                      {
+                      supervisors?.map((sub,index)=>
+                       
+                      <SelectItem key={sub?.u_id || `fallback-key-${index}`} value={`${sub.u_id}`}>{`${sub.name}`}</SelectItem>
+                     
+                        )}
+                   </SelectContent>
+                  </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+}
             <Button type="submit" variant='secondary' className="w-full mx-auto lg:w-auto bg-gradient-to-b from-blue-500 to to-blue-700 font-semibold text-xl justify-between  hover:bg-[#E7422C]/20 hover:text-white
         border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none
         text-white focus:bg-[#E7422C]/70 transition-all">حفظ بيانات المزرعة</Button>

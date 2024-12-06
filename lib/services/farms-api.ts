@@ -86,8 +86,29 @@ export const farmsApi = createApi({
         };
       }
       },
+    }),
+    //Get the supervisors who are not assigned to any farm
+    fetchFreeSupervisors:builder.query<SuperVisor[],void>({
+      async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.supervisors.free_sup.$get();
+          //@ts-ignore
+          const {supervisors} = await res.json();
+          console.log(supervisors);
+          return { data: supervisors };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+        };
+      }
+      },
     })
   }),
 });
 
-export const { useFetchAllFarmsQuery, useAddNewFarmMutation,useFetchSupervisorsQuery } = farmsApi;
+export const { useFetchAllFarmsQuery, useAddNewFarmMutation,useFetchSupervisorsQuery,useFetchFreeSupervisorsQuery } = farmsApi;

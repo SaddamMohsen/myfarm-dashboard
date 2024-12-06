@@ -20,7 +20,7 @@ export default function Page() {
   // useEffect(() => {
   //   dispatch(getFarms());
   // }, [isLoading]);
-  //const [isOpen, setIsOpen] = useState(open)
+  const [open, setIsOpen] = useState(false);
   const supabase = createClient();
   const user = supabase.auth.getUser();
   //console.log({ user });
@@ -40,7 +40,7 @@ export default function Page() {
       <p className="text-center bg-red-500 p-3 rounded-md flex justify-center items-center text-white  text-sm text-destructive">
         حطأ في عملية الحصول على البيانات
       </p>
-      <FarmInputForm  />
+     
       </div>
       </div>
     );
@@ -50,7 +50,10 @@ export default function Page() {
       <div className="flex flex-row items-center justify-between w-full p-6">
         <h1 className="text-2xl font-bold ">قائمة المزارع</h1>
         <div>
-        <FarmInputForm  />
+          <Button variant='ghost' onClick={()=>setIsOpen(true)}>
+        add new farm
+          </Button>
+       {open&& <FarmInputForm open={open} />}
           {/* <Dialog>
             <DialogTrigger asChild>
               <Button

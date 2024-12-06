@@ -49,9 +49,10 @@ export type Users = {
 export type SuperVisor = {
   name: string;
   id:string;
-  uuid: string;
+  uuid?: string;
   phone_numbers: number;
   details: string;
+  u_id:string;
 };
 export const superVisorSchema = z.object({
   name: z.string().min(6, "Name is required"), // Ensures name is a non-empty string
