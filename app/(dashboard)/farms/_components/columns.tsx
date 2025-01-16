@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Link, EyeIcon, ArrowDownRightIcon } from "lucide-react";
+import {  EyeIcon, ArrowDownRightIcon } from "lucide-react";
+import Link from "next/link";
 
 export const columns: ColumnDef<Farms, any>[] = [
   {
@@ -117,15 +118,27 @@ export const columns: ColumnDef<Farms, any>[] = [
             align="center"
             className="w-[150px] bg-white text-muted p-0 ">
             <DropdownMenuLabel className="text-center">
-              قائمة التعديل
+        
+                {"قائمة التعديل"}
+              
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex flex-row-reverse space-y-4  gap-2 items-center justify-center hover:bg-slate-200 text-right cursor-pointer">
-              <span className="flex flex-row space-y-4  gap-2 items-center justify-center">
-                {" "}
-                عرض التفاصيل
-                <EyeIcon className="w-6 h-6" />{" "}
-              </span>
+            
+            <Link href={`/farms/${report.id}`} >
+            
+                                <span className="flex flex-row space-y-4 gap-2 items-center justify-center">
+                                عرض تفاصيل المزرعة
+                                    <EyeIcon className="w-6 h-6" /> 
+                                </span>
+                            
+                      
+                                              
+                                         
+                                        </Link>
+              
+              
+             
             </DropdownMenuItem>
             {/* <DropdownMenuSeparator /> */}
             {/* <DropdownMenuItem>View Report</DropdownMenuItem>

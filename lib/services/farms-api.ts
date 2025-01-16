@@ -7,6 +7,7 @@ import { Farms, SuperVisor } from "@/constants/types";
 import { client } from "../hono-client";
 import { z } from "zod";
 import { InferRequestType, InferResponseType } from "hono";
+import { ClientResponse } from "hono/client";
 
 
 // type FarmsResponse = {
@@ -44,6 +45,34 @@ export const farmsApi = createApi({
       }
       },
     }),
+    fetchFarmById:builder.mutation<Farms,{id:number}>({
+      async queryFn(id, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.farms.$get({ "query":{
+            "id":id.id
+            }});
+          
+          //@ts-ignore
+          const {farm} = await res.json();
+         
+          return { data: farm[0] };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+        };
+      }
+      },
+       
+       
+      
+    
+   // transformResponse: (response)=>response.data
+  }),
     addNewFarm: builder.mutation<Farms|any,{newFarm: FarmPostRequsetType}>({
       //query:({...body})=>({url:'farm',method:"POST",body:body})
       async queryFn(newFarm, _queryApi, _extraOptions, _baseQuery) {
@@ -107,8 +136,87 @@ export const farmsApi = createApi({
         };
       }
       },
-    })
+    }),
+    getProductionByDate: builder.mutation<any, { date: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.productions.$get({
+            query: {
+              
+              date: params.date
+            }
+          });
+          const data = await res.json();
+          console.log('data in apo',data);
+          return { data };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+    getFeedConsumptionByDate: builder.mutation<any, { date: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.productions.feed.$get({
+            query: {
+              date: params.date
+            }
+          });
+          const data = await res.json();
+          console.log('feed consumption data', data);
+          return { data };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+    getSummaryByDate: builder.mutation<any, { date: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.productions.summary.$get({
+            query: {
+              date: params.date
+            }
+          });
+          const data = await res.json();
+          console.log('summary data', data);
+          return { data };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
-export const { useFetchAllFarmsQuery, useAddNewFarmMutation,useFetchSupervisorsQuery,useFetchFreeSupervisorsQuery } = farmsApi;
+export const { 
+  useFetchAllFarmsQuery,
+  useAddNewFarmMutation,
+  useFetchSupervisorsQuery,
+  useFetchFreeSupervisorsQuery,
+  useFetchFarmByIdMutation,
+  useGetProductionByDateMutation,
+  useGetFeedConsumptionByDateMutation,
+  useGetSummaryByDateMutation 
+} = farmsApi;

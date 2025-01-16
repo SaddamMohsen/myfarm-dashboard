@@ -13,21 +13,32 @@ const app = new Hono<Env>()
   .get("/", async (c) => {
     try{
     const schema = c.var.user?.user_metadata.schema;
-
-    //const { data: farms, error }: { data: any; error: any } =
+  
+      const id = c.req.query('id');
+    if(id){
+    const {data}= await supabase
+      .schema(schema)
+      .from("farms")
+      .select()
+      .filter('id','eq',id)
+      .returns<Farms>();
+  
+      return c.json({farm: data });
+    }
+    
     const {data}= await supabase
       .schema(schema)
       .from("farms")
       .select()
       .returns<Farms>();
     
-    //console.log(data);
     return c.json({farms: data });
     }catch(error:any){
       console.log('error in get farms',error);
       return c.json({error:'error in get farms'},400);
     }
   })
+ 
   .post(
     "/",
     zValidator("json", farmSchema, (result, c) => {

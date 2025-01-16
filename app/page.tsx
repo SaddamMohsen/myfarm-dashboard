@@ -25,7 +25,7 @@ export default async function Index() {
     console.log("no user");
     return redirect("/login");
   } else {
-    return redirect("/protected");
+    return redirect("/main");
   }
 
   //const isSupabaseConnected = canInitSupabaseClient();

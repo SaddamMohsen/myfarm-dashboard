@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import farms from "./farms";
 import supervisors from "./supervisors";
+import productions from "./productions";
 import { getCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
@@ -104,7 +105,8 @@ app.use(authUserMiddleware);
 //   return c.json({ data });
 // });
 const routes = app.route("/farms", farms)
- .route('supervisors',supervisors);
+ .route('supervisors',supervisors)
+ .route('productions',productions);
 // app.get("/hello", (c) => {
 //   return c.json({
 //     message: "Hello Next.js! from Hono",
