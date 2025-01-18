@@ -1,18 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, CalendarIcon, Loader2 } from "lucide-react"
+import {  Loader2 } from "lucide-react"
 import { Label, Pie, PieChart } from "recharts"
 import { format } from "date-fns"
-import { ar } from "date-fns/locale"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartConfig,
@@ -52,6 +44,10 @@ export function ProductionChartComponent({
     },
   } satisfies ChartConfig
 
+  const handleClick = (farmId: any) => {
+    console.log(farmId);
+  }
+
   const fetchData = async () => {
     try {
       setIsLoading(true)
@@ -61,6 +57,7 @@ export function ProductionChartComponent({
       if (result) {
         const newChartData = result.map((item: any) => ({
           farmName: item.farmName,
+          farmId: item.farmId,
           amount: item.amount,
           fill: `hsl(${Math.random() * 360}, 70%, 50%)`
         }))
@@ -109,8 +106,11 @@ export function ProductionChartComponent({
               dataKey="amount"
               nameKey="farmName"
               innerRadius={60}
+              outerRadius={100}
+              cursor="pointer"
               strokeWidth={5}
-            >
+              onClick={(_, index) => handleClick(chartData[index]?.farmId)}
+              >
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -142,7 +142,7 @@ export function ProductionChartComponent({
               />
             </Pie>
             <ChartLegend
-              content={<ChartLegendContent nameKey="label" />}
+              content={<ChartLegendContent payload={chartData} nameKey="farmName" />}
               className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
             />
           </PieChart>

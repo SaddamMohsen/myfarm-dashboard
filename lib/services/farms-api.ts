@@ -207,6 +207,30 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getDailyReport: builder.mutation<any, { date: string, farmId: number }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.productions['daily-report'].$get({
+            query: {
+              date: params.date,
+              farmId: params.farmId
+            }
+          });
+          const data = await res.json();
+          console.log('data in api',data);
+          return { data };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -218,5 +242,6 @@ export const {
   useFetchFarmByIdMutation,
   useGetProductionByDateMutation,
   useGetFeedConsumptionByDateMutation,
-  useGetSummaryByDateMutation 
+  useGetSummaryByDateMutation,
+  useGetDailyReportMutation
 } = farmsApi;

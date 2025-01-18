@@ -11,62 +11,68 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface SummaryData {
-    farmName:string;
-    eggProductionCarton:number;
-    eggProductionTray:number;
-    remainingEggsCarton:number;
-    remainingEggsTray:number;
-    outEggsCarton:number;
-    outEggsTray:number;
-    incomFeed:number;
-    feedConsumption:number;
-    feedRemaining:number;
+  farmId: number;
+  farmName: string;
+  eggProductionCarton: number;
+  eggProductionTray: number;
+  remainingEggsCarton: number;
+  remainingEggsTray: number;
+  outEggsCarton: number;
+  outEggsTray: number;
+  incomFeed: number;
+  feedConsumption: number;
+  feedRemaining: number;
 }
 
 interface SummaryTableProps {
   data: SummaryData[];
   isLoading?: boolean;
+  onFarmSelect: (farmId: number) => void;
 }
 
-export function SummaryTable({ data, isLoading }: SummaryTableProps) {
+export function SummaryTable({ data, isLoading, onFarmSelect }: SummaryTableProps) {
   return (
-    <Card>
+    <Card className="bg-white/50">
       <CardHeader>
         <CardTitle className="text-center">ملخص الإنتاج والاستهلاك</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table dir="rtl">
+        <Table dir="rtl" className="bg-white/10 font-bold">
           <TableHeader>
-            <TableRow>
-            <TableHead className="text-right">المزرعة</TableHead>
-              <TableHead className="text-center">إنتاج البيض (كرتون)</TableHead>
-              <TableHead className="text-center">إنتاج البيض (صينية)</TableHead>
-              <TableHead className="text-center">المتبقي من البيض (كرتون)</TableHead>
-              <TableHead className="text-center">المتبقي من البيض (صينية)</TableHead>
-              <TableHead className="text-center">البيض الخارج (كرتون)</TableHead>
-              <TableHead className="text-center">البيض الخارج (صينية)</TableHead>
-             <TableHead className="text-center">العلف الوارد</TableHead>
-              <TableHead className="text-center">استهلاك العلف</TableHead>
-              <TableHead className="text-center">المتبقي من العلف</TableHead>
+            <TableRow className="font-bold">
+              <TableHead className="text-right font-semibold">المزرعة</TableHead>
+              <TableHead className="text-center  font-semibold">إنتاج البيض (كرتون)</TableHead>
+              <TableHead className="text-center  font-semibold">إنتاج البيض ('طبق')</TableHead>
+              <TableHead className="text-center font-semibold">المتبقي من البيض (كرتون)</TableHead>
+              <TableHead className="text-center  font-semibold">المتبقي من البيض ('طبق')</TableHead>
+            <TableHead className="text-center  font-semibold">البيض الخارج (كرتون)</TableHead>
+              <TableHead className="text-center  font-semibold">البيض الخارج ('طبق')</TableHead>
+              <TableHead className="text-center font-semibold">العلف الوارد</TableHead>
+              <TableHead className="text-center font-semibold">استهلاك العلف</TableHead>
+              <TableHead className="text-center font-semibold">المتبقي من العلف</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={10} className="text-center">
                   جاري التحميل...
                 </TableCell>
               </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={10} className="text-center">
                   لا توجد بيانات
                 </TableCell>
               </TableRow>
             ) : (
               data.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{row.farmName}</TableCell>
+                <TableRow 
+                  key={index}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => onFarmSelect(row.farmId)}
+                >
+                  <TableCell className="font-semibold">{row.farmName}</TableCell>
                   <TableCell className="text-center">{row.eggProductionCarton.toLocaleString()}</TableCell>
                   <TableCell className="text-center">{row.eggProductionTray.toLocaleString()}</TableCell>
                   <TableCell className="text-center">{row.remainingEggsCarton.toLocaleString()}</TableCell>

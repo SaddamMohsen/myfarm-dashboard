@@ -13,8 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { UserCircle, UserCircle2 } from "lucide-react";
 import { LogoutButton } from "./logout-button";
-import { SubmitHandler } from "react-hook-form";
-import { signOut } from "@/lib/actions/logout";
+
 
 export default async function AuthButton() {
   const supabase = createClient();
@@ -40,9 +39,18 @@ export default async function AuthButton() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-30 bg-white" align="start">
-          <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+        <DropdownMenuLabel>مرحبا {user.email}</DropdownMenuLabel>
+         
+          
           <DropdownMenuSeparator /> 
-          <DropdownMenuItem className="flex items-center justify-stretch w-full bg-white">
+          <DropdownMenuItem className="flex flex-row items-center justify-stretch w-full bg-white  hover:bg-blue-500/20">
+            <Link href="/profile" className="flex flex-row items-center justify-stretch w-full gap-2 ">
+              <UserCircle className="w-8 h-8 text-blue-500" />
+              <span className="text-black">الملف الشخصي</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="flex items-center justify-stretch w-full  hover:bg-blue-500/20">
             <LogoutButton />
           </DropdownMenuItem>
         </DropdownMenuContent>

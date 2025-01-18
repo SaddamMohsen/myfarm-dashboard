@@ -9,41 +9,16 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon } from "lucide-react"
 import { ProductionChartComponent } from "@/components/charts/ProductionChart"
-import { useGetProductionByDateMutation, useGetFeedConsumptionByDateMutation, useGetSummaryByDateMutation } from "@/lib/services/farms-api"
+import { useGetProductionByDateMutation, useGetFeedConsumptionByDateMutation, useGetSummaryByDateMutation, useGetDailyReportMutation } from "@/lib/services/farms-api"
 import { SummaryTable } from "@/components/tables/SummaryTable"
+import { AmberDailyReport } from "@/components/tables/AmberDailyReport"
+import {DatePicker} from "@/components/date-picker";
 
 interface DatePickerProps {
   date: Date
   onSelect: (date: Date | undefined) => void
 }
 
-function DatePicker({ date, onSelect }: DatePickerProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "justify-start text-right font-normal",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="ml-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: ar }) : "اختر تاريخ"}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          locale={ar}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  )
-}
 
 export default function DashboardContent() {
   const [date, setDate] = React.useState<Date>(new Date())
@@ -51,6 +26,9 @@ export default function DashboardContent() {
   const [getFeedConsumption] = useGetFeedConsumptionByDateMutation()
   const [getSummary, { isLoading: isSummaryLoading }] = useGetSummaryByDateMutation()
   const [summaryData, setSummaryData] = React.useState<any[]>([])
+  const [selectedFarmId, setSelectedFarmId] = React.useState<number | null>(null)
+  const [dailyReportData, setDailyReportData] = React.useState<any[]>([])
+  const [getDailyReport, { isLoading: isDailyReportLoading }] = useGetDailyReportMutation()
 
   const handleDateSelect = async (newDate: Date | undefined) => {
     if (!newDate) return
@@ -63,6 +41,30 @@ export default function DashboardContent() {
       }
     } catch (error) {
       console.error("خطأ في جلب بيانات الملخص:", error)
+    }
+  }
+
+  const handleFarmSelect = async (farmId: number) => {
+    if (selectedFarmId === farmId) {
+      setSelectedFarmId(null)
+      setDailyReportData([])
+      return
+    }
+
+    setSelectedFarmId(farmId)
+    if (date && farmId) {
+      try {
+        const formattedDate = format(date, 'yyyy-MM-dd')
+        const result = await getDailyReport({ 
+          date: formattedDate,
+          farmId: farmId 
+        }).unwrap()
+        if (result?.ambers) {
+          setDailyReportData(result.ambers)
+        }
+      } catch (error) {
+        console.error("خطأ في جلب التقرير اليومي:", error)
+      }
     }
   }
 
@@ -79,7 +81,7 @@ export default function DashboardContent() {
         <div className="flex justify-end px-4 py-2">
           <DatePicker date={date} onSelect={handleDateSelect} />
         </div>
-        <div className="flex flex-row w-full">
+        <div className="flex flex-row gap-4 w-full">
           <div className="w-full">
           <ProductionChartComponent
             key='2'
@@ -108,14 +110,27 @@ export default function DashboardContent() {
             }}
           />
           </div>
+         
         </div>
         <div className="px-4 mt-8">
           <SummaryTable 
             data={summaryData}
             isLoading={isSummaryLoading}
+            onFarmSelect={handleFarmSelect}
           />
         </div>
       </div>
+
+      {selectedFarmId && (
+        <div className="px-4 mt-8 w-full">
+          <AmberDailyReport 
+            data={dailyReportData}
+            isLoading={isDailyReportLoading}
+            farmId={selectedFarmId}
+            date={format(date, 'yyyy-MM-dd')}
+          />
+        </div>
+      )}
 
       <footer className="w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs">
         <p>

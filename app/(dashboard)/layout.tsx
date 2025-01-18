@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/toaster"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -16,9 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen w-full flex-1 bg-gradient-to-b from-blue-500/10 to to-white obacity-40 ">
+    <main className="min-h-screen w-full flex-1 bg-gradient-to-b from-blue-500/50 to to-white obacity-40 ">
       <Header />
       {children}
+      <Toaster />
     </main>
   );
 }

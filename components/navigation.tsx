@@ -21,7 +21,7 @@ const routes = [
     label: "المشرفين",
   },
   {
-    href: "/settings",
+    href: "/profile",
     label: "الاعدادات",
   },
 ];

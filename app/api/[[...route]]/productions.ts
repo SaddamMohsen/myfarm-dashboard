@@ -193,21 +193,21 @@ const app = new Hono<Env>()
           .schema(schema)
           .from('farms')
           .select('id, farm_name');
-
+       
         if (farmsError) throw farmsError;
-
+       
         // نجمع التقارير لكل مزرعة
         const farmReports = await Promise.all(
           farms.map(async (farm) => {
             const { data, error } = await supabase
-             
+              .schema(schema)
               .rpc('get_farm_month_report', {
                 f_id: farm.id,
                 rep_date: startDate
               });
 
             if (error) { console.log('error', error); throw error; }
-            console.log('data',farm.id, data);
+           // console.log('data',farm.id, data);
             // نستخدم أول سجل من التقرير لأنه يحتوي على أحدث البيانات
             const report = data.reduce((acc:any, curr:any) => {
               acc.death += curr.death || 0;
@@ -233,6 +233,7 @@ const app = new Hono<Env>()
            // console.log('report:',farm.id,report);
             return {
               farmName: farm.farm_name,
+              farmId: farm.id,
               eggProductionCarton: (report.prod_egg[1] || 0),
               eggProductionTray: report.prod_egg[0] || 0,
               remainingEggsCarton: report.remain_egg[1] || 0,
@@ -253,6 +254,70 @@ const app = new Hono<Env>()
     } catch (error: any) {
       console.log('error in get summary', error);
       return c.json({ error: 'error in get summary' }, 400);
+    }
+  })
+  .get("/daily-report", async (c) => {
+    try {
+      const schema = c.var.user?.user_metadata.schema;
+      const date = c.req.query('date');
+      const farmId = c.req.query('farmId');
+      
+      if (!date || !farmId) {
+        return c.json({ error: 'Date and farmId are required' }, 400);
+      }
+   
+    const f_id=parseInt(farmId);
+    const rep_date= new Date(date);
+    console.log('date',date,rep_date);
+      // استدعاء الـ RPC للحصول على التقرير اليومي
+      const { data, error } = await supabase
+         .schema(schema)
+        .rpc('get_daily_report', {
+          f_id: f_id,
+          amb_id:0,
+          rep_date: rep_date
+        });
+
+      if (error) {
+        console.log('error in get daily report', error);
+        throw error;
+      }
+ console.log('data',data);
+      // تنظيم البيانات حسب العنابر
+      const amberReport = data.map((record: any) => ({
+        amberId: record.amber_id,
+        //amberName: record.amber_name,
+        totalBirds: record.total_birds,
+        death: record.death,
+        //culled: record.culled,
+        prodEggs: {
+          carton: record.prodCarton || 0,
+          tray: record.prodTray || 0
+        },
+        outEggs: {
+          carton: record.outCarton || 0,
+          tray: record.outTray || 0
+        },
+        remainingEggs: {
+          carton: record.reminegg[1] || 0,
+          tray: record.reminegg[0] || 0
+        },
+        incomeFeed: record.incom_feed || 0,
+        feedConsumption: record.intak_feed || 0,
+        feedRemaining: record.remain_feed || 0,
+        notes: record.outEggsNote || '',
+        prodDate: record.prod_date
+      }));
+
+      return c.json({ 
+        farmId: parseInt(farmId),
+        date: date,
+        ambers: amberReport 
+      });
+
+    } catch (error: any) {
+      console.log('error in get daily report', error);
+      return c.json({ error: 'error in get daily report' }, 400);
     }
   });
 

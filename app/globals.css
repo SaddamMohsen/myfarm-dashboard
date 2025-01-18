@@ -92,6 +92,12 @@ body,
 }
 
 .btn--secondary {
-  @apply bg-slate-100 hover:bg-slate-300 text-slate-800 focus:outline-blue-400 focus:ring  focus:ring-blue-400;
+  @apply bg-melon-200 hover:bg-melon-300 text-white hover:text-white w-full focus:outline-blue-400 focus:ring  focus:ring-blue-400;
+}
+
+.btn-myfarm{
+  @apply w-full bg-oxford_blue-700 font-extrabold  text-2xl justify-between hover:bg-india_green-600 hover:text-white
+   border-none  outline-none
+  text-anti-flash_white-900 transition-all;
 }
 }

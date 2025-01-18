@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useEffect, useState, useTransition } from 're
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -43,7 +43,7 @@ import { cn } from '@/lib/utils'
 import {Farms, farmSchema, SuperVisor} from "@/constants/types";
 import { useAddNewFarmMutation ,useFetchFreeSupervisorsQuery} from '@/lib/services/farms-api'
 
-export default function FarmInputForm({open}:{open:boolean}) {
+export default function FarmInputForm({open,onClose}:{open:boolean,onClose:()=>void}) {
   const [isOpen,setIsOpen]=useState(open);
   const [error,setError]=useState('');
   const [addFarm, { isLoading }] = useAddNewFarmMutation();
@@ -91,7 +91,7 @@ export default function FarmInputForm({open}:{open:boolean}) {
         if(payload.success)
         {
           console.log('تم اضافة بيانات المزرعة بنجاح')
-          setIsOpen(false)
+          onClose()
         }
         else{
           console.log('error',payload.error);
@@ -112,7 +112,10 @@ export default function FarmInputForm({open}:{open:boolean}) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline">Add New Farm</Button>
+        <Button className='btn-myfarm' onClick={() => setIsOpen(true)}>
+        <Plus className="ml-2 h-4 w-4 bg-blue-500/10" />
+          إضافة مزرعة جديدة
+        </Button>
       </SheetTrigger>
       <SheetContent  className="sm:max-w-[425px] overflow-auto " >
         <SheetHeader>
@@ -302,9 +305,7 @@ export default function FarmInputForm({open}:{open:boolean}) {
               )}
             />
 }
-            <Button type="submit" variant='secondary' className="w-full mx-auto lg:w-auto bg-gradient-to-b from-blue-500 to to-blue-700 font-semibold text-xl justify-between  hover:bg-[#E7422C]/20 hover:text-white
-        border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none
-        text-white focus:bg-[#E7422C]/70 transition-all">حفظ بيانات المزرعة</Button>
+            <Button type="submit" variant='secondary' className="btn-myfarm">حفظ بيانات المزرعة</Button>
           </form>
           {error&&(
             <div>{error}</div>

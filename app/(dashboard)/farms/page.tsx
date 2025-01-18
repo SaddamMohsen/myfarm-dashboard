@@ -13,13 +13,7 @@ import { useState } from "react";
 import FarmInputForm from './_components/farm-input-form';
 import { Farms } from "@/constants/types";
 export default function Page() {
-  // const { farmsList, errorMessage, hasError, isLoading } = useAppSelector(
-  //   (state) => state.farms
-  // );
-  // const dispatch = useAppDispatch();
-  // useEffect(() => {
-  //   dispatch(getFarms());
-  // }, [isLoading]);
+ 
   const [open, setIsOpen] = useState(false);
   const supabase = createClient();
   const user = supabase.auth.getUser();
@@ -50,31 +44,13 @@ export default function Page() {
       <div className="flex flex-row items-center justify-between w-full p-6">
         <h1 className="text-2xl font-bold ">قائمة المزارع</h1>
         <div>
-          <Button variant='ghost' onClick={()=>setIsOpen(true)}>
-        add new farm
-          </Button>
-       {open&& <FarmInputForm open={open} />}
-          {/* <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="w-full lg:w-auto bg-gradient-to-b from-blue-500 to to-blue-700 font-semibold text-xl justify-between  hover:bg-[#E7422C]/20 hover:text-white
-        border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none
-        text-white focus:bg-[#E7422C]/70 transition-all">
-                اضافة مزرعة
-              </Button>
-            </DialogTrigger>
-            <DialogContent
-              onInteractOutside={(e) => {
-                e.preventDefault();
-              }}>
-            
-            </DialogContent>
-          </Dialog> */}
+         
+       
+            <FarmInputForm open={open} onClose={() => setIsOpen(false)} />
+          
         </div>
       </div>
-      {data&&
-      <FarmsDataTable columns={columns} data={data} />
-      }
+      {data && <FarmsDataTable columns={columns} data={data} />}
     </div>
   );
 }
