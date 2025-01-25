@@ -51,6 +51,7 @@ export default function Login({
     });
 
     if (error) {
+      console.log('error', error);
       return redirect("/login?message=Could not authenticate user");
     }
 
@@ -111,12 +112,12 @@ export default function Login({
           >
           دخــــــــول
         </SubmitButton>
-        <SubmitButton
+        {/* <SubmitButton
           formAction={signUp}
           className="border border-foreground/20 bg-gradient-to-b from-blue-500/20 to to-blue-700/40 antialiased rounded-md px-4 py-2 font-semibold text-foreground mb-2"
           pendingText="جاري تسجيل الحساب..... ">
           إنشاء حساب
-        </SubmitButton>
+        </SubmitButton> */}
         {searchParams?.message && (
           <div className="bg-red-500 rounded-lg">
           <ErrorMessage message={searchParams?.message} />

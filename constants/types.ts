@@ -49,6 +49,8 @@ export type Users = {
 export type SuperVisor = {
   name: string;
   id:string;
+  full_name:string;
+  email:string;
   uuid?: string;
   phone_numbers: number;
   details: string;

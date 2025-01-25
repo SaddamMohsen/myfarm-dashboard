@@ -4,7 +4,7 @@ import * as React from "react"
 import {  Loader2 } from "lucide-react"
 import { Label, Pie, PieChart } from "recharts"
 import { format } from "date-fns"
-
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartConfig,
@@ -35,6 +35,7 @@ export function ProductionChartComponent({
 }: ChartProps) {
   const [chartData, setChartData] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter();
 
   const chartConfig = {
     'استهلاك العلف': {
@@ -46,6 +47,8 @@ export function ProductionChartComponent({
 
   const handleClick = (farmId: any) => {
     console.log(farmId);
+    console.log('date',date);
+    router.push(`/reports/monthly/${farmId}?date=${date}`);
   }
 
   const fetchData = async () => {

@@ -4,8 +4,7 @@ import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Tables } from "@/constants/supabase-types";
-import { superVisorSchema } from "@/constants/types";
-//import { cookies } from "next/headers";
+
 
 const supabase = createClient();
 type SuperVisors = Tables<"supervisors">;
@@ -62,23 +61,65 @@ console.log('data from supervisor',data,error);
   })
   .post(
     "/",
-    zValidator("json", superVisorSchema, (result, c) => {
+    zValidator("json", z.object({
+        full_name: z.string(),
+        phone: z.string(),
+        email: z.string(),
+        password: z.string(),
+      })
+    , (result, c) => {
       if (!result.success) {
-        console.log("invalid");
         return c.text("Invalid Values!", 400);
       }
     }),
     async (c) => {
-      const schema = c.var.user?.user_metadata.schema;
-      console.log("in post supervisors");
-      const supervisor = c.req.valid("json");
+      const schema = c.var.user?.user_metadata;
+      const user = c.req.valid("json");
+      
       try {
-        await supabase.schema(schema).from("supervisors").insert(supervisor);
-        console.log("supervisor in post", supervisor);
-        return c.json({ success: "success" });
+        // إنشاء مستخدم جديد باستخدام createUser
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: user.email,
+          password: user.password,
+          options: {
+            data: {
+              full_name: user.full_name,
+              role: 'admin',
+              schema: schema.schema,
+              user_schema: schema.user_schema
+            }
+          }
+        })
+
+        if (authError) {
+          console.log('authError', authError);
+          throw authError;
+        }
+
+        // إضافة بيانات المشرف في جدول المشرفين
+        const { error: dbError } = await supabase
+          .schema(schema.schema)
+          .from('supervisors')
+          .insert({
+            name: user.full_name,
+            phone_numbers: user.phone,
+            details: 'غير مضاف لاي مزرعة',
+            u_id: authData.user?.id,
+          })
+
+        if (dbError) {
+          console.log('dbError', dbError);
+          throw dbError;
+        }
+
+        return c.json({ success: true, user: authData.user });
+
       } catch (error: any) {
         console.log("error in post supervisor", error);
-        return c.json({ error: "error in post supervisors" }, 400);
+        return c.json({ 
+          error: error.message || "error in post supervisors",
+          details: error 
+        }, 400);
       }
     }
   );

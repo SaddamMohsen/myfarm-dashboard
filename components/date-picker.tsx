@@ -36,6 +36,7 @@ export function DatePicker({ date, onSelect }: DatePickerProps) {
           onSelect={onSelect}
           locale={ar}
           initialFocus
+          className="bg-white"
         />
       </PopoverContent>
     </Popover>

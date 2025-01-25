@@ -137,6 +137,32 @@ export const farmsApi = createApi({
       }
       },
     }),
+    //add new supervisor
+    addNewSupervisor:builder.mutation<any,{full_name: string,
+      phone: string,
+      email: string,
+      password: string}>({
+        async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+          try {
+            const res = await client.api.supervisors.$post({
+              json:params
+              
+            });
+            const data = await res.json();
+            console.log('data in apo',data);
+            return { data };
+          } catch (error: any) {
+            console.log(error);
+            return {
+              error: {
+                status: 500,
+                statusText: `Internal Server Error ${error}`,
+                data: error,
+              },
+            };
+          }
+        },  
+      }),
     getProductionByDate: builder.mutation<any, { date: string }>({
       async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
         try {
@@ -231,6 +257,30 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getMonthlyReport: builder.mutation<any, { farmId: string, date: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.reports.monthly[':id'].$get({
+            param: {
+              id: params.farmId
+            },
+            query: {
+              date: params.date
+            }
+          });
+          const data = await res.json();
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -243,5 +293,7 @@ export const {
   useGetProductionByDateMutation,
   useGetFeedConsumptionByDateMutation,
   useGetSummaryByDateMutation,
-  useGetDailyReportMutation
+  useGetDailyReportMutation,
+  useAddNewSupervisorMutation,
+  useGetMonthlyReportMutation,
 } = farmsApi;

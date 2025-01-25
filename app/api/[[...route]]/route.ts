@@ -4,6 +4,7 @@ import { handle } from "hono/vercel";
 import farms from "./farms";
 import supervisors from "./supervisors";
 import productions from "./productions";
+import reports from "./reports";
 import { getCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
@@ -106,12 +107,9 @@ app.use(authUserMiddleware);
 // });
 const routes = app.route("/farms", farms)
  .route('supervisors',supervisors)
- .route('productions',productions);
-// app.get("/hello", (c) => {
-//   return c.json({
-//     message: "Hello Next.js! from Hono",
-//   });
-// });
+ .route('productions',productions)
+ .route('reports',reports);
+
 
 export const GET = handle(app);
 export const POST = handle(app);

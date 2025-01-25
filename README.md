@@ -1,10 +1,9 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
+
   <h1 align="center">MyFarm Dashboard using Supabase</h1>
-</a>
+
 
 <p align="center">
- The fastest way to build apps with Next.js and Supabase
+ The best application to track the data of your poultry farm
 </p>
 
 <p align="center">
@@ -22,15 +21,13 @@
 - Works across the entire [Next.js](https://nextjs.org) stack
   - App Router
  - hono api
-  
+  -supabase
   - It just works!
 - supabase-ssr. A package to configure Supabase Auth to use cookies
 - Styling with [Tailwind CSS](https://tailwindcss.com)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+-
 
 
-## Deploy to Vercel
 
 Vercel deployment will guide you through creating a Supabase account and project.
 

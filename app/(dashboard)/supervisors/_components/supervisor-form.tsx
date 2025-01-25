@@ -9,6 +9,7 @@ import { createClient } from "@/utils/supabase/client"
 import { DialogClose } from "@/components/ui/dialog"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import { useAddNewSupervisorMutation } from "@/lib/services/farms-api"
 
 interface SupervisorFormData {
   full_name: string
@@ -25,6 +26,7 @@ export function SupervisorForm() {
     email: '',
     password: ''
   })
+  const [addSupervisor,{isLoading:isSubmiting}]=useAddNewSupervisorMutation();
   const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,66 +34,17 @@ export function SupervisorForm() {
     setIsLoading(true)
 
     try {
-      const accessToken = supabase.realtime.accessToken
-      if (!accessToken) throw new Error('لم يتم العثور على رمز الوصول')
 
-      // فك تشفير الـ token للحصول على user_metadata
-      const decoded = jwt.decode(accessToken)
-      if (!decoded || typeof decoded !== 'object') {
-        throw new Error('خطأ في فك تشفير رمز الوصول')
-      }
-  
-      const schema = decoded.user_metadata?.schema
-      const userSchema = decoded.user_metadata?.user_schema
-      if (!schema) throw new Error('لم يتم العثور على المخطط')
-        console.log('schema',schema,userSchema)
-      // تشفير كلمة المرور
-      const salt = await bcrypt.genSalt(10)
-      const hashedPassword = await bcrypt.hash(formData.password, salt)
-
-      // إنشاء مستخدم جديد في Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-       
-        options: {
-          data: {
-            full_name: formData.full_name,
-            role:userSchema,
-            user_schema:userSchema,
-            schema: schema
-          }
-        }
-      })
-
-      if (authError){
-        console.log('authError',authError);
-        throw authError
-      }
-
-      // إضافة بيانات المشرف في جدول المشرفين
-      const { error: dbError } = await supabase
-        .schema(schema)
-        .from('supervisors')
-        .insert({
-        
-          name: formData.full_name,
-          phone_numbers: formData.phone,
-          details:'غير مضاف لاي مزرعة',
-          u_id: authData.user?.id,
-        })
-
-      if (dbError) {
-        console.log('dbError',dbError); 
-        throw dbError
-      }
-
+      const user =await supabase.auth.getSession();
+      console.log('user',user);   
+      const result= await addSupervisor(formData).unwrap()
+      if(result?.data)
       toast({
         title: "تم إضافة المشرف بنجاح",
         description: "تم إرسال رابط تأكيد البريد الإلكتروني",
       })
 
-      const closeButton = document.querySelector('[data-dialog-close]') as HTMLButtonElement
+      const closeButton = document.getElementById('close-dialog') as HTMLButtonElement
       closeButton?.click()
 
     } catch (error: any) {
@@ -166,9 +119,9 @@ export function SupervisorForm() {
           />
         </div>
 
-        <div className="flex flex-row justify-center items-center gap-3">
+        <div className="flex flex-row-reverse justify-center items-center gap-3">
           <DialogClose asChild>
-            <Button type="button" className="btn--secondary" variant="default">
+            <Button type="button" id="close-dialog" className="btn--secondary" variant="default">
               إلغاء
             </Button>
           </DialogClose>
