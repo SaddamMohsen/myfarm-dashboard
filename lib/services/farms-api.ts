@@ -281,6 +281,28 @@ export const farmsApi = createApi({
         }
       },
     }),
+    loginUser: builder.mutation<any, { email: string, password: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.auth["sign-in"].$post({
+            json: {
+              email: params.email,
+              password:params.password
+            },
+          });
+          const data = await res.json();
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -296,4 +318,5 @@ export const {
   useGetDailyReportMutation,
   useAddNewSupervisorMutation,
   useGetMonthlyReportMutation,
+  useLoginUserMutation,
 } = farmsApi;

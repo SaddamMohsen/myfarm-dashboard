@@ -1,18 +1,21 @@
-import { createClient } from "@/utils/supabase/client";
+//import { createClient } from "@/utils/supabase/client";
+import { createClient } from '@supabase/supabase-js'
 import { Hono } from "hono";
 import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Tables } from "@/constants/supabase-types";
+import {getAuthenticatedSupabase} from '@/utils/supabase/supabase-auth-helper';
 
 
-const supabase = createClient();
+//const supabase = createClient();
 type SuperVisors = Tables<"supervisors">;
 const app = new Hono<Env>()
 .get("/free_sup", async (c) => {
   try {
-    const schema = c.var.user?.user_metadata.schema??'public';
-    console.log('schema',schema);
+    const token = c.var.jwt;
+      const schema = c.var.user?.user_metadata.schema??'public'; 
+      const supabase = getAuthenticatedSupabase(token);
    //This will return all supervisors who assigned to a farms
     const { data,error } = await supabase
       .schema(schema)
@@ -40,10 +43,10 @@ let supervisorsArr=data?.map((item)=>item.u_id)
 })
   .get("/", async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema??'public';
-       
+      const token = c.var.jwt;
+      const schema = c.var.user?.user_metadata.schema??'public'; 
+      const supabase = getAuthenticatedSupabase(token);
       
-      //const { data: farms, error }: { data: any; error: any } =
       const { data,error } = await supabase
         .schema(schema)
         .from("supervisors")
@@ -51,12 +54,12 @@ let supervisorsArr=data?.map((item)=>item.u_id)
           farm_name,
           farm_supervisor)`)
         .returns<SuperVisors>();
-console.log('data from supervisor',data,error);
+
       //console.log(data);
       return c.json({ supervisors: data });
     } catch (error: any) {
       console.log("error in get supervisors", error);
-      return c.json({ error: "error in get supervisors" }, 400);
+      return c.json({ error: "error in get supervisors " }, 400);
     }
   })
   .post(
@@ -73,9 +76,11 @@ console.log('data from supervisor',data,error);
       }
     }),
     async (c) => {
-      const schema = c.var.user?.user_metadata;
-      const user = c.req.valid("json");
       
+      const user = c.req.valid("json");
+      const token = c.var.jwt;
+      const schema = c.var.user?.user_metadata.schema??'public'; 
+      const supabase = getAuthenticatedSupabase(token);
       try {
         // إنشاء مستخدم جديد باستخدام createUser
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -84,9 +89,9 @@ console.log('data from supervisor',data,error);
           options: {
             data: {
               full_name: user.full_name,
-              role: 'admin',
-              schema: schema.schema,
-              user_schema: schema.user_schema
+              role: 'supervisor',
+              schema: schema,
+              user_schema: schema
             }
           }
         })
@@ -98,7 +103,7 @@ console.log('data from supervisor',data,error);
 
         // إضافة بيانات المشرف في جدول المشرفين
         const { error: dbError } = await supabase
-          .schema(schema.schema)
+          .schema(schema)
           .from('supervisors')
           .insert({
             name: user.full_name,

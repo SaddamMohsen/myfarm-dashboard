@@ -4,6 +4,7 @@ import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Farms,farmSchema } from "@/constants/types";
+import { getAuthenticatedSupabase } from "@/utils/supabase/supabase-auth-helper";
 
 //import { cookies } from "next/headers";
 
@@ -12,8 +13,10 @@ const supabase = createClient();
 const app = new Hono<Env>()
   .get("/", async (c) => {
     try{
-    const schema = c.var.user?.user_metadata.schema;
-  
+
+    const token = c.var.jwt;
+          const schema = c.var.user?.user_metadata.schema??'public'; 
+          const supabase = getAuthenticatedSupabase(token);
       const id = c.req.query('id');
     if(id){
     const {data}= await supabase
@@ -48,7 +51,9 @@ const app = new Hono<Env>()
       }
     }),
     async (c) => {
-      const schema = c.var.user?.user_metadata.schema;
+      const token = c.var.jwt;
+      const schema = c.var.user?.user_metadata.schema??'public'; 
+      const supabase = getAuthenticatedSupabase(token);
     
       try {
         const farm = c.req.valid("json");

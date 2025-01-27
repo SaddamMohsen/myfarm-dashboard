@@ -35,8 +35,7 @@ export function SupervisorForm() {
 
     try {
 
-      const user =await supabase.auth.getSession();
-      console.log('user',user);   
+       
       const result= await addSupervisor(formData).unwrap()
       if(result?.data)
       toast({

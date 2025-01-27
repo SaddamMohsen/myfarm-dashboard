@@ -1,3 +1,4 @@
+'use client';
 import Link from "next/link";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
@@ -7,6 +8,7 @@ import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import {ErrorMessage} from "@/components/ErrorMessage";
 import MyFarmLogo from "@/components/myfarm-logo";
+import { useLoginUserMutation } from "@/lib/services/farms-api";
 
 export default function Login({
   searchParams,
@@ -14,19 +16,26 @@ export default function Login({
   searchParams: { message: string };
 }) {
  // const [isPending,startTransation]=useTransition();
+ const [login,{isLoading}]=useLoginUserMutation();
   const signIn = async (formData: FormData) => {
-    "use server";
+   // "use server";
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
+    // const supabase = createClient();
       
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
+    // const { data,error } = await supabase.auth.signInWithPassword({
+    //   email,
+    //   password,
+    // });
+    const result = await login({
+      email:email,
+      password:password,
+    }).unwrap();
+     console.log('data',result?.data);
+     //redirect('/main');
+    if (result?.error) {
+      console.log(result?.error);
       return redirect("/login?message=Could not authenticate user");
     }
 
@@ -34,29 +43,29 @@ export default function Login({
   
   };
 
-  const signUp = async (formData: FormData) => {
-    "use server";
+  // const signUp = async (formData: FormData) => {
+  //   "use server";
 
-    const origin = headers().get("origin");
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createClient();
+  //   const origin = headers().get("origin");
+  //   const email = formData.get("email") as string;
+  //   const password = formData.get("password") as string;
+  //   const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
-    });
+  //   const { error } = await supabase.auth.signUp({
+  //     email,
+  //     password,
+  //     options: {
+  //       emailRedirectTo: `${origin}/auth/callback`,
+  //     },
+  //   });
 
-    if (error) {
-      console.log('error', error);
-      return redirect("/login?message=Could not authenticate user");
-    }
+  //   if (error) {
+  //     console.log('error', error);
+  //     return redirect("/login?message=Could not authenticate user");
+  //   }
 
-    return redirect("/login?message=Check email to continue sign in process");
-  };
+  //   return redirect("/login?message=Check email to continue sign in process");
+  // };
 
   return (
     <div className=" flex flex-col w-full min-h-screen px-8 sm:max-w-md justify-center items-center gap-2">

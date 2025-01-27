@@ -4,6 +4,7 @@ import { SupervisorTable } from "./_components/supervisors_table"
 import { SupervisorDialog } from "./_components/supervisor-dialog"
 import { useFetchSupervisorsQuery } from "@/lib/services/farms-api";
 
+
 export default function SupervisorsPage() {
   const { data, isLoading, error } = useFetchSupervisorsQuery();
   

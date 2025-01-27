@@ -4,23 +4,26 @@ import { handle } from "hono/vercel";
 import farms from "./farms";
 import supervisors from "./supervisors";
 import productions from "./productions";
+import auth from "./login";
 import reports from "./reports";
-import { getCookie } from "hono/cookie";
+import { getCookie,setCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
-import { User } from "@supabase/supabase-js";
+
 export const runtime = "edge";
 
 ///TODO add a middleware to check roles of user
 export type Env = {
   Variables: {
     user:  any;
+    jwt: string;
   };
 };
 const authUserMiddleware = createMiddleware<Env>(async (c, next) => {
   // console.log("in auth middleware 1");
 
   let ruser = {};
+  let jwt='';
   try {
     const supabase = createClient();
     let cookie = getCookie(c);
@@ -29,23 +32,24 @@ const authUserMiddleware = createMiddleware<Env>(async (c, next) => {
       token = cookie[a].split(",")[0];
     }
     token = token.substring(17, token.length - 1);
-
+   
     const {
       data: { user },
     } = await supabase.auth.getUser(token);
-
+       
     if (!user) {
       console.log("user not authenticated");
       return c.redirect(`/login`);
     }
     ruser = user;
+    jwt=token;
     //return user;
   } catch (e) {
     console.log("error in get user", e);
     throw e;
   }
   c.set("user", ruser);
-
+  c.set("jwt", jwt);
   await next();
 });
 const app = new Hono<Env>().basePath("/api");
@@ -108,7 +112,8 @@ app.use(authUserMiddleware);
 const routes = app.route("/farms", farms)
  .route('supervisors',supervisors)
  .route('productions',productions)
- .route('reports',reports);
+ .route('reports',reports)
+ .route('auth',auth);
 
 
 export const GET = handle(app);
