@@ -30,7 +30,7 @@ export const Table = ({
                     <p className="text-xl font-medium">
                       {invoice?.farm_start_date?.toDateString() ?? "not specified"}
                     </p>
-                    <p>{invoice.farm_end_date?.toDateString() ?? "Not specified"}</p>
+                    <p>{invoice.farm_end_date?.toString() ?? "Not specified"}</p>
                   </div>
                   {/* <div className="flex justify-end gap-2">
                     <UpdateInvoice id={invoice.id} />
@@ -87,7 +87,7 @@ export const Table = ({
                     {invoice.no_of_ambers}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {invoice.farm_end_date?.toDateString()}
+                    {invoice.farm_end_date?.toString()}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {invoice.is_running}
@@ -95,7 +95,7 @@ export const Table = ({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {invoice.farm_end_date?.toDateString()}
+                      {invoice.farm_end_date?.toString()}
                       {/* <UpdateInvoice id={invoice.id} />
                       <DeleteInvoice id={invoice.id} /> */}
                     </div>

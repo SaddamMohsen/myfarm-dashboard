@@ -22,9 +22,9 @@ export const AddNewFarm = () => {
     resolver: zodResolver(farmSchema),
     defaultValues: {
       farm_name: "",
-      created_at: new Date(),
+      created_at: new Date().toISOString(),
       farm_type: 'بياض',
-      farm_end_date: new Date(),
+      farm_end_date: new Date().toISOString(),
       farm_start_date: new Date(),
       is_running: true,
       no_of_ambers: 1,

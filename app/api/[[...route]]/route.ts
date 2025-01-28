@@ -25,6 +25,14 @@ const authUserMiddleware = createMiddleware<Env>(async (c, next) => {
   let ruser = {};
   let jwt='';
   try {
+
+    const url = c.req.url;
+
+    if (
+      url.includes('/api/auth/sign-in')
+    ){
+      await next();
+    }
     const supabase = createClient();
     let cookie = getCookie(c);
     let token = "";

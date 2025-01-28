@@ -1,11 +1,15 @@
 import { createClient } from "@/utils/supabase/client";
 import { Hono } from "hono";
 import { Env } from "./route";
-
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 const supabase = createClient();
 
 const app = new Hono<Env>()
-  .get("/monthly/:id", async (c) => {
+  .get("/monthly/:id",zValidator("query",
+          z.object({
+              date: z.string(),
+          })), async (c) => {
     try {
       const schema = c.var.user?.user_metadata.schema;
       const farmId = c.req.param('id');
