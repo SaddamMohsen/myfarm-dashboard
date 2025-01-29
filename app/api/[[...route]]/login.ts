@@ -1,16 +1,33 @@
 import { createClient } from "@/utils/supabase/client";
 import { zValidator } from "@hono/zod-validator";
 
-
+import {getSupabase, setUser} from '@/utils/supabase/auth.middleware';
 
 import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
-import { endTime, startTime } from "hono/timing";
 import { z } from "zod";
 
-const supabase=createClient();
+//const supabase=createClient();
 const app = new Hono()
+.get('/user', async (c) => {
+    console.log('in get user hono endpoint');
+    const supabase = getSupabase(c)
+    const { data, error } = await supabase.auth.getUser()
+  
+    if (error) console.log('error in get user', error)
+  
+    if (!data?.user) {
+      return c.json({
+        message: 'You are not logged in.',
+      })
+    }
+  
+    return c.json({
+     
+    data: data.user,
+    })
+  })
 .post(
     "/sign-in",
     zValidator(
@@ -22,7 +39,7 @@ const app = new Hono()
     ),
     async (c) => {
         const { email, password } = c.req.valid("json");
-
+           const supabase = getSupabase(c);
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
@@ -43,9 +60,21 @@ const app = new Hono()
             path: "/",
             secure: true,
         });
-
+        setUser(c, data.user);
         return c.json(data.user);
     },
-);
+)
+.get('/sign-out', async (c) => {
+   
+    const supabase = getSupabase(c)
+     await supabase.auth.signOut
+  
+   
+      return c.json({
+        data: 'You are not logged in.',
+      })
+    
+  
+  });
 
 export default app;

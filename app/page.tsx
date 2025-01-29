@@ -1,11 +1,14 @@
+'use client';
 // import DeployButton from "../components/DeployButton";
 // import AuthButton from "../components/AuthButton";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import ConnectSupabaseSteps from "@/components/tutorial/ConnectSupabaseSteps";
 import SignUpUserSteps from "@/components/tutorial/SignUpUserSteps";
 import { redirect } from "next/navigation";
+import { useGetUserInfoQuery } from "@/lib/services/farms-api";
 
-export default async function Index() {
+export default function Index() {
+   const {data:user, isLoading}=useGetUserInfoQuery()
   // const canInitSupabaseClient = () => {
   //   // This function is just for the interactive tutorial.
   //   // Feel free to remove it once you have Supabase connected.
@@ -16,14 +19,14 @@ export default async function Index() {
   //     return false;
   //   }
   // };
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const supabase = createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
   if (!user) {
     console.log("no user");
-    return redirect("/login");
+    return redirect("/main");
   } else {
     return redirect("/main");
   }

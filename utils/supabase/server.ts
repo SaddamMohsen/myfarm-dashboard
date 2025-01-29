@@ -3,13 +3,13 @@ import { cookies } from "next/headers";
 
 export const createClient = () => {
   const cookieStore = cookies();
-
+  const supabaseUrl = process.env.SUPABASE_URL!;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!,
+    supabaseUrl,
+   supabaseAnonKey,
 
     {
-      db: { schema: "al_watania" },
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value;

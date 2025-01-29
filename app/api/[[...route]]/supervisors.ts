@@ -1,21 +1,20 @@
-//import { createClient } from "@/utils/supabase/client";
-import { createClient } from '@supabase/supabase-js'
+
 import { Hono } from "hono";
 import { Env } from "./route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Tables } from "@/constants/supabase-types";
-import {getAuthenticatedSupabase} from '@/utils/supabase/supabase-auth-helper';
-
+import {getSupabase, getUser} from '@/utils/supabase/auth.middleware';
 
 //const supabase = createClient();
 type SuperVisors = Tables<"supervisors">;
 const app = new Hono<Env>()
 .get("/free_sup", async (c) => {
   try {
-    const token = c.var.jwt;
-      const schema = c.var.user?.user_metadata.schema??'public'; 
-      const supabase = getAuthenticatedSupabase(token);
+    const {user,error:userError} =await getUser(c);  
+      const schema = user?.user_metadata.schema??'public';
+    console.log('schema',schema);
+    const supabase = getSupabase(c); 
    //This will return all supervisors who assigned to a farms
     const { data,error } = await supabase
       .schema(schema)
@@ -25,7 +24,7 @@ const app = new Hono<Env>()
          farm_supervisor)`).not('farms.farm_supervisor','is',null)
       .returns<SuperVisors[]>();
    if(error){
-    return c.json({error},400);
+    return c.json({error:`error in get supervisor ${error}`},200);
    }
       //get the u_id from the last query result
 let supervisorsArr=data?.map((item)=>item.u_id)
@@ -38,14 +37,15 @@ let supervisorsArr=data?.map((item)=>item.u_id)
     return c.json({ supervisors: free_sub });
   } catch (error: any) {
     console.log("error in get free supervisors", error);
-    return c.json({ error: "error in  get free supervisors" }, 400);
+    return c.json({ error: "error in  get free supervisors" }, 200);
   }
 })
   .get("/", async (c) => {
     try {
-      const token = c.var.jwt;
-      const schema = c.var.user?.user_metadata.schema??'public'; 
-      const supabase = getAuthenticatedSupabase(token);
+      const {user,error:userError} =await getUser(c);  
+      const schema = user?.user_metadata.schema??'public';
+      console.log('schema',schema);
+      const supabase = getSupabase(c);    //getAuthenticatedSupabase(token);
       
       const { data,error } = await supabase
         .schema(schema)
@@ -54,7 +54,10 @@ let supervisorsArr=data?.map((item)=>item.u_id)
           farm_name,
           farm_supervisor)`)
         .returns<SuperVisors>();
-
+     
+        if(error){
+          return c.json({error:`error in get supervisor ${error}`},200);
+         }
       //console.log(data);
       return c.json({ supervisors: data });
     } catch (error: any) {
@@ -78,9 +81,9 @@ let supervisorsArr=data?.map((item)=>item.u_id)
     async (c) => {
       
       const user = c.req.valid("json");
-      const token = c.var.jwt;
-      const schema = c.var.user?.user_metadata.schema??'public'; 
-      const supabase = getAuthenticatedSupabase(token);
+      const {user:loggedUser,error} =await getUser(c);  
+          const schema = loggedUser?.user_metadata.schema??'public';
+      const supabase = getSupabase(c); 
       try {
         // إنشاء مستخدم جديد باستخدام createUser
         const { data: authData, error: authError } = await supabase.auth.signUp({

@@ -303,6 +303,26 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getUserInfo:builder.query<any,void>({
+      async queryFn(_arg, _api, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.auth["user"].$get();
+          const data = await res.json();
+          console.log('data in api get user',data);
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      
+        
+      },
+    })
   }),
 });
 
@@ -319,4 +339,5 @@ export const {
   useAddNewSupervisorMutation,
   useGetMonthlyReportMutation,
   useLoginUserMutation,
+  useGetUserInfoQuery,
 } = farmsApi;

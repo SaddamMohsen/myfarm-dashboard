@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
-import { createClient } from "./utils/supabase/server";
+//import { createClient } from "./utils/supabase/server";
 import { cookies } from "next/headers";
 const protectedRoutes = ["/farms",'/supervisors','/main','/reports','/profile'];
 export async function middleware(request: NextRequest) {
@@ -27,7 +27,8 @@ export async function middleware(request: NextRequest) {
     );
   }
   console.log("in middleware", request.nextUrl.pathname);
-  return await updateSession(request);
+  //return await updateSession(request);
+  return ;
 }
 
 export const config = {

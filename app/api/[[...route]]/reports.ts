@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { Env } from "./route";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import { getSupabase, getUser } from "@/utils/supabase/auth.middleware";
 const supabase = createClient();
 
 const app = new Hono<Env>()
@@ -11,7 +12,9 @@ const app = new Hono<Env>()
               date: z.string(),
           })), async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema;
+      const {user,error:userError} =await getUser(c);  
+          const schema = user?.user_metadata.schema??'public';
+           const supabase = getSupabase(c); 
       const farmId = c.req.param('id');
       const date = c.req.query('date');
 

@@ -19,8 +19,8 @@
     "@radix-ui/react-switch": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
     "@reduxjs/toolkit": "^2.2.5",
-    "@supabase/ssr": "latest",
-    "@supabase/supabase-js": "latest",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.48.1",
     "@tanstack/react-table": "^8.20.6",
     "@types/jsonwebtoken": "^9.0.7",
     "autoprefixer": "10.4.17",
@@ -45,6 +45,7 @@
     "tailwindcss": "3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.3.3",
+    "vercel": "^39.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

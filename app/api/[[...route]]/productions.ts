@@ -2,8 +2,8 @@ import { createClient } from "@/utils/supabase/client";
 import { Hono } from "hono";
 import { Env } from "./route";
 import { Farms } from "@/constants/types";
+import { getSupabase, getUser } from "@/utils/supabase/auth.middleware";
 
-const supabase = createClient();
 
 // تعريف نوع البيانات المتوقعة من الاستعلام
 type ProductionRecord = {
@@ -17,7 +17,9 @@ type ProductionRecord = {
 const app = new Hono<Env>()
   .get("/", async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema;
+       const {user:loginUser,error} =await getUser(c);  //c.var.user?.user_metadata.schema??'public'; 
+            const schema = loginUser?.user_metadata.schema??'public';
+            const supabase = getSupabase(c); 
       const date = c.req.query('date');
       console.log('schema', schema);
 
@@ -108,7 +110,9 @@ const app = new Hono<Env>()
   })
   .get("/feed", async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema;
+      const {user,error} =await getUser(c);  
+      const schema = user?.user_metadata.schema??'public';
+      const supabase = getSupabase(c); 
       const date = c.req.query('date');
       
       if (date) {
@@ -178,7 +182,9 @@ const app = new Hono<Env>()
   })
   .get("/summary", async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema;
+      const {user,error} =await getUser(c);  
+      const schema = user?.user_metadata.schema??'public';
+      const supabase = getSupabase(c); 
       const date = c.req.query('date');
       
       if (date) {
@@ -258,7 +264,9 @@ const app = new Hono<Env>()
   })
   .get("/daily-report", async (c) => {
     try {
-      const schema = c.var.user?.user_metadata.schema;
+      const {user,error:userError} =await getUser(c);  
+          const schema = user?.user_metadata.schema??'public';
+      const supabase = getSupabase(c); 
       const date = c.req.query('date');
       const farmId = c.req.query('farmId');
       

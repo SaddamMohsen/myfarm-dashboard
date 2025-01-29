@@ -1,4 +1,6 @@
-import { createClient } from "@/utils/supabase/server";
+'use client';
+//import { createClient } from "@/utils/supabase/server";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -13,14 +15,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { UserCircle, UserCircle2 } from "lucide-react";
 import { LogoutButton } from "./logout-button";
+import { useGetUserInfoQuery } from "@/lib/services/farms-api";
+import { Users } from "@/constants/types";
 
-
-export default async function AuthButton() {
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = (await supabase.auth?.getUser()) ?? { data: { user: null } };
+export default  function AuthButton() {
+  const {data:user, isLoading}=useGetUserInfoQuery()
+//  const {
+//     data: { user },
+//   } = (await supabase.auth?.getUser()) ?? { data: { user: null } };
 
   // useEffect(() => {
   // console.log(user);
