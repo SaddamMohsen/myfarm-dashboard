@@ -4,42 +4,46 @@ import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import {ErrorMessage} from "@/components/ErrorMessage";
 import MyFarmLogo from "@/components/myfarm-logo";
 import { useLoginUserMutation } from "@/lib/services/farms-api";
+import { set } from "date-fns";
 
 export default function Login({
   searchParams,
 }: {
   searchParams: { message: string };
 }) {
- // const [isPending,startTransation]=useTransition();
+
  const [login,{isLoading}]=useLoginUserMutation();
+ const [error,setError]=useState<string|null>(null);
   const signIn = async (formData: FormData) => {
-   // "use server";
+   
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    // const supabase = createClient();
-      
-    // const { data,error } = await supabase.auth.signInWithPassword({
-    //   email,
-    //   password,
-    // });
+   
     const result = await login({
       email:email,
       password:password,
     }).unwrap();
-     console.log('data',result?.data);
+     console.log('data',result);
      //redirect('/main');
     if (result?.error) {
-      console.log(result?.error);
-      return redirect("/login?message=Could not authenticate user");
+      console.log('in login error',result?.error.code);
+      setError(result?.error.code);
+     setTimeout(() => {
+      setError(null);
+      }
+     ,5000);
+    
+      //return redirect("/login");
     }
-
+    else{
     return redirect("/main");
+    }
   
   };
 
@@ -68,7 +72,7 @@ export default function Login({
   // };
 
   return (
-    <div className=" flex flex-col w-full min-h-screen px-8 sm:max-w-md justify-center items-center gap-2">
+    <div className=" flex flex-col w-full min-h-screen px-8 sm:max-w-md justify-center items-center gap-2" dir="rtl">
       <Link
         href="/"
         className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm">
@@ -127,9 +131,10 @@ export default function Login({
           pendingText="جاري تسجيل الحساب..... ">
           إنشاء حساب
         </SubmitButton> */}
-        {searchParams?.message && (
-          <div className="bg-red-500 rounded-lg">
-          <ErrorMessage message={searchParams?.message} />
+        {error && (
+          <div className="bg-red-600/90 rounded-lg text-center text-white p-2">
+          {/* <ErrorMessage message={error} /> */}
+          {error}
           </div>
         )}
       </form>

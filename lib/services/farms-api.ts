@@ -102,7 +102,7 @@ export const farmsApi = createApi({
           const res = await client.api.supervisors.$get();
           //@ts-ignore
           const {supervisors} = await res.json();
-          console.log('supervisors',supervisors);
+        
           return { data: supervisors };
         } catch (error: any) {
           console.log(error);
@@ -149,7 +149,7 @@ export const farmsApi = createApi({
               
             });
             const data = await res.json();
-            console.log('data in apo',data);
+          
             return { data };
           } catch (error: any) {
             console.log(error);
@@ -173,7 +173,7 @@ export const farmsApi = createApi({
             }
           });
           const data = await res.json();
-          console.log('data in apo',data);
+        
           return { data };
         } catch (error: any) {
           console.log(error);
@@ -196,7 +196,7 @@ export const farmsApi = createApi({
             }
           });
           const data = await res.json();
-          console.log('feed consumption data', data);
+         
           return { data };
         } catch (error: any) {
           console.log(error);
@@ -219,7 +219,7 @@ export const farmsApi = createApi({
             }
           });
           const data = await res.json();
-          console.log('summary data', data);
+      
           return { data };
         } catch (error: any) {
           console.log(error);
@@ -243,7 +243,7 @@ export const farmsApi = createApi({
             }
           });
           const data = await res.json();
-          console.log('data in api',data);
+       
           return { data };
         } catch (error: any) {
           console.log(error);
@@ -291,6 +291,7 @@ export const farmsApi = createApi({
             },
           });
           const data = await res.json();
+          console.log('data in login api',data);
           return { data };
         } catch (error: any) {
           return {
@@ -308,7 +309,7 @@ export const farmsApi = createApi({
         try {
           const res = await client.api.auth["user"].$get();
           const data = await res.json();
-          console.log('data in api get user',data);
+         
           return { data };
         } catch (error: any) {
           return {

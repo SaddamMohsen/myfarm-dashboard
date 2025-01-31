@@ -1,20 +1,23 @@
-'use client'
-//import { createClient } from "@/utils/supabase/server";
+"use client"
 import { redirect } from "next/navigation";
 import DashboardContent from "@/components/pages/dashboard-page";
 import { useGetUserInfoQuery } from "@/lib/services/farms-api";
 
-export default  function ProtectedPage() {
-   const {data:user, isLoading}=useGetUserInfoQuery()
-  //const supabase = createClient();
+export default function ProtectedPage() {
+  // Fetch user information using the custom hook
+  const { data: user, isLoading } = useGetUserInfoQuery();
 
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
- console.log('user in main page',user);
-  // if (!user) {
-  //   return redirect("/login");
-  // }
+  // Log the user information for debugging purposes
+  console.log('User information on the main page:', user);
 
+  // Redirect to the login page if the user is not authenticated and loading is complete
+  if (!user && !isLoading) {
+    return redirect("/login");
+  }
+
+  // Render the dashboard content if the user is authenticated
   return <DashboardContent />;
 }
+
+
+  

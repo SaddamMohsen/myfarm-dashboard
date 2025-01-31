@@ -34,7 +34,7 @@ const app = new Hono()
         "json",
         z.object({
             email: z.string(),
-            password: z.string().min(6),
+            password: z.string().min(5),
         }),
     ),
     async (c) => {
@@ -44,7 +44,7 @@ const app = new Hono()
 
         if (error) {
             console.error("Error while signing in", error);
-            throw new HTTPException(401, { message: error.message });
+            return c.json({ error: error },200);
         }
 
         setCookie(c, "access_token", data?.session.access_token, {

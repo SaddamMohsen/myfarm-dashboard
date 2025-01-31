@@ -10,7 +10,7 @@ import reports from "./reports";
 import { getCookie,setCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
-import {getSupabase, supabaseMiddleware} from '@/utils/supabase/auth.middleware';
+import {getSupabase, getUser, supabaseMiddleware} from '@/utils/supabase/auth.middleware';
 export const runtime = "edge";
 
 ///TODO add a middleware to check roles of user
@@ -22,52 +22,19 @@ export type Env = {
 };
 
 const authUserMiddleware = createMiddleware<Env>(async (c, next) => {
-  // console.log("in auth middleware 1");
-
-  let ruser = {};
-  let jwt='';
- 
-
+  
     const url = c.req.url;
 
     if (
-      url.includes('/api/auth/sign-in')
+      !url.includes('/api/auth/sign-in')
     ){
-      console.log('going to sign in');
-      await next();
-    }
-    console.log('user found',c.var.user);
-    if(!c.var.user){
-    const supabase = getSupabase(c);
-    try{
-   // console.log('supabase',supabase);
-  //   let cookie = getCookie(c);
-  //  // console.log('cookie',cookie);
-  //   let token = "";
-  //   for (let a in cookie) {
-  //      token = cookie[a].split(",")[0];
-  //    }
-  //    token = token.substring(17, token.length - 1);
-   //console.log('token',token);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-      // console.log('user',user);
-    if (!user) {
+      const {user,error:userError} =await getUser(c);  
+      if (!user) {
       console.log("user not authenticated");
       return c.redirect(`/login`);
+      }
     }
-    ruser = user;
-    //jwt=token;
-    //return user;
-  } catch (e) {
-    console.log("error in get user", e);
-    throw e;
-  }
-  c.set("user", ruser);
-}
-  //c.set("jwt", jwt);
-  // next();
+    await next();
 });
 const app = new Hono<Env>().basePath("/api");
 app.use('/api/*', cors())
@@ -77,40 +44,8 @@ app.notFound((c) => {
 
 
 app.use(supabaseMiddleware());
-//app.use(authUserMiddleware);
-// app.use("*", async (c, next) => {
-//   console.log("in hono check auth middleware");
-//   const supabase = createClient();
+app.use(authUserMiddleware);
 
-//   try {
-//     let cookie = getCookie(c);
-//     let token = "";
-//     for (let a in cookie) {
-//       token = cookie[a].split(",")[0];
-//     }
-//     token = token.substring(17, token.length - 1);
-
-//     const {
-//       data: { user },
-//     } = await supabase.auth.getUser(token);
-
-//     if (!user) {
-//       console.log("user not authenticated");
-//       return c.redirect(`/login`);
-//       // return c.json(
-//       //   {
-//       //     error: "not authenticated",
-//       //   },
-//       //   401
-//       // );
-//     }
-//   } catch (e) {
-//     console.log("error in get user", e);
-//     throw e;
-//   }
-
-//   await next();
-// });
 
 const routes = app.route("/farms", farms)
  .route('supervisors',supervisors)
