@@ -11,7 +11,7 @@ import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import { useToast } from "@/hooks/use-toast"
 import { farmSchema } from '@/constants/types'
-import { useFetchFarmByIdMutation } from '@/lib/services/farms-api'
+import { useFetchFarmByIdMutation ,useFetchFreeSupervisorsQuery} from '@/lib/services/farms-api'
 
 
 type FarmData = z.infer<typeof farmSchema>
@@ -41,7 +41,9 @@ const saveFarmData = async (data: FarmData): Promise<void> => {
 
 export function FarmDetails({ farmId }: { farmId: number }) {
   const [isEditing, setIsEditing] = useState(false)
-  const [fetchData,isLoading] =useFetchFarmByIdMutation()
+  const [fetchData,isLoading] =useFetchFarmByIdMutation();
+  const {data:supervisors} = useFetchFreeSupervisorsQuery();
+ 
   const { toast } = useToast()
   const { register, handleSubmit, control, reset } = useForm<FarmData>({
     resolver: zodResolver(farmSchema),
@@ -134,14 +136,31 @@ export function FarmDetails({ farmId }: { farmId: number }) {
       </div>
 
       <div className='flex flex-row items-center justify-between gap-2 font-bold flex-1  '>
-        <Label className='font-bold text-3xl/2' htmlFor="farm_supervisor">مشرف المزرعة</Label>
-        <Input id="farm_supervisor" {...register('farm_supervisor')} disabled={!isEditing} />
-      </div>
+  <Label className='font-bold text-3xl/2' htmlFor="farm_supervisor">مشرف المزرعة</Label>
+  <Controller
+    name="farm_supervisor"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing} >
+        <SelectTrigger>
+          <SelectValue placeholder="اختر مشرف المزرعة" />
+        </SelectTrigger>
+        <SelectContent className='bg-white'>
+          {supervisors && supervisors.map((supervisor) => (
+            <SelectItem key={supervisor.id} value={supervisor.name}>
+              {supervisor.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
 </div>
       {isEditing ? (
-        <div className="flex space-x-2 justify-center items-center gap-4">
+        <div className="flex justify-center items-center space-x-4 gap-4">
           <Button className='btn btn--primary' type="submit">حفظ التغييرات</Button>
-          <Button className='btn btn--secondary' type="button" variant={'default'} onClick={() => setIsEditing(false)}>إلغاء</Button>
+          <Button className='btn btn--secondary ' type="button" variant={'default'} onClick={() => setIsEditing(false)}>إلغاء</Button>
         </div>
       ) : (
         <Button className='btn btn--primary' type="button" onClick={() => setIsEditing(true)}>تعديل</Button>

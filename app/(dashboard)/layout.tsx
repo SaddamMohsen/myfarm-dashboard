@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen w-full flex-1 bg-gradient-to-b from-blue-500/50 to to-white obacity-40 ">
+    <main className="min-h-screen w-full flex-1  bg-gradient-to-b from-[#ffffff] to-[#6FC9EB]/80 obacity-40 ">
       <Header />
       {children}
       <Toaster />

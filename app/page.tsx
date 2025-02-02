@@ -1,12 +1,15 @@
 'use client';
 // import DeployButton from "../components/DeployButton";
 // import AuthButton from "../components/AuthButton";
-import { createClient } from "@/utils/supabase/client";
-import ConnectSupabaseSteps from "@/components/tutorial/ConnectSupabaseSteps";
-import SignUpUserSteps from "@/components/tutorial/SignUpUserSteps";
+
 import { redirect } from "next/navigation";
 import { useGetUserInfoQuery } from "@/lib/services/farms-api";
-
+import Hero from "@/components/landing-page/hero";
+import CTA from "@/components/landing-page/cti";
+import Features from "@/components/landing-page/features";
+import Footer from "@/components/landing-page/footer";
+import Stats from "@/components/landing-page/state";
+import Header from "@/components/landing-page/header";
 export default function Index() {
    const {data:user, isLoading}=useGetUserInfoQuery()
   // const canInitSupabaseClient = () => {
@@ -24,44 +27,25 @@ export default function Index() {
   //   data: { user },
   // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.log("no user");
-    return redirect("/main");
-  } else {
-    return redirect("/main");
-  }
+  // if (!user) {
+  //   console.log("no user");
+  //   return redirect("/main");
+  // } else {
+  //   return redirect("/main");
+  // }
 
   //const isSupabaseConnected = canInitSupabaseClient();
 
   return (
-    <div className="flex-1 w-full flex flex-col gap-20 items-center">
-      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-        {/* <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
-          <DeployButton />
-          {isSupabaseConnected && <AuthButton />}
-        </div> */}
-      </nav>
-
-      <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3">
-        <main className="flex-1 flex flex-col gap-6">
-          {/* <h2 className="font-bold text-4xl mb-4">Next steps</h2>
-          {isSupabaseConnected ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-          */}
-        </main>
-      </div>
-
-      <footer className="w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs">
-        <p>
-          Powered by{" "}
-          <a
-            href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-            target="_blank"
-            className="font-bold hover:underline"
-            rel="noreferrer">
-            Saddam Escap
-          </a>
-        </p>
-      </footer>
+    <div className="flex flex-col min-h-screen " dir="rtl">
+      <main>
+        <Header />
+        <Hero />
+        <Features />
+        <Stats />
+        <CTA />
+      </main>
+      <Footer />
     </div>
   );
 }

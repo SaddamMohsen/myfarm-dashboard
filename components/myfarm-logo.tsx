@@ -6,7 +6,7 @@ export default function MyFarmLogo() {
     <Link href="/">
       <div className="items-center pt-12 hidden lg:flex">
         <Image src="/img/logo.png" alt="logo" height={98} width={98} />
-        <p className="font-semibold text-white text-2xl mr-2.5">مزرعتي</p>
+        <p className="font-semibold text-melon text-2xl mr-2.5">مزرعتي</p>
       </div>
     </Link>
   );

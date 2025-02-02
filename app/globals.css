@@ -92,7 +92,7 @@ body,
 }
 
 .btn--secondary {
-  @apply bg-melon-200 hover:bg-melon-300 text-white hover:text-white w-full focus:outline-blue-400 focus:ring  focus:ring-blue-400;
+  @apply bg-melon-200 hover:bg-melon-300 text-white hover:text-white  focus:outline-blue-400 focus:ring  focus:ring-blue-400;
 }
 
 .btn-myfarm{

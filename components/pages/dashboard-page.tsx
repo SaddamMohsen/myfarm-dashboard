@@ -81,7 +81,7 @@ export default function DashboardContent() {
         <div className="flex justify-end px-4 py-2">
           <DatePicker date={date} onSelect={handleDateSelect} />
         </div>
-        <div className="flex flex-row gap-4 w-full">
+        <div className="flex flex-col md:flex-row gap-4 w-full">
           <div className="w-full">
           <ProductionChartComponent
             key='2'
@@ -136,7 +136,7 @@ export default function DashboardContent() {
         <p>
           Powered by{" "}
           <a
-            href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
+            href="#"
             target="_blank"
             className="font-bold hover:underline"
             rel="noreferrer"

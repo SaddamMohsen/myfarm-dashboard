@@ -72,7 +72,7 @@ export default function Login({
   // };
 
   return (
-    <div className=" flex flex-col w-full min-h-screen px-8 sm:max-w-md justify-center items-center gap-2" dir="rtl">
+    <div className=" flex flex-col w-full min-h-screen px-8 lg:max-w-screen-lg  justify-center items-center gap-2" dir="rtl">
       <Link
         href="/"
         className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm">
@@ -92,7 +92,7 @@ export default function Login({
         </svg>{" "}
       </Link>
 
-      <form className="animate-in flex flex-col border w-full p-4 rounded-md shadow-md  justify-center gap-2 text-black">
+      <form className="animate-in flex flex-col border w-full p-4 rounded-md shadow-md bg-fuchsia-50 justify-center gap-2 text-black">
       <div className="flex items-center lg:gap-x-16">
             <MyFarmLogo />
             

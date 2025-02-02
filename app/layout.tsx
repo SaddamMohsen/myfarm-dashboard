@@ -10,7 +10,7 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "MyFarm Dashboard Application",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  description: "The fastest way to get monitoring your farm",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
     <StoreProvider>
       <html lang="en"  className={GeistSans.className}>
         <body>
-          <main className="min-h-screen flex flex-col w-full items-center">
+          <main className="min-h-screen flex flex-col w-full items-center bg-gradient-to-b from-[#ffffff] to-[#6FC9EB]/80">
             {children}
           </main>
           <Toaster />
