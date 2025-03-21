@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -11,7 +11,7 @@ import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import { useToast } from "@/hooks/use-toast"
 import { farmSchema } from '@/constants/types'
-import { useFetchFarmByIdMutation ,useFetchFreeSupervisorsQuery} from '@/lib/services/farms-api'
+import { useFetchFarmByIdMutation ,useFetchFreeSupervisorsQuery, useFetchOneSupervisorMutation} from '@/lib/services/farms-api'
 
 
 type FarmData = z.infer<typeof farmSchema>
@@ -31,7 +31,7 @@ const fetchFarmData = async (id: number): Promise<FarmData> => {
   }
 }
 
-// Mock function to save farm data
+// Mock function to save ``````farm data
 const saveFarmData = async (data: FarmData): Promise<void> => {
   // In a real application, you would send this data to your API
   console.log('Saving farm data:', data)
@@ -43,11 +43,18 @@ export function FarmDetails({ farmId }: { farmId: number }) {
   const [isEditing, setIsEditing] = useState(false)
   const [fetchData,isLoading] =useFetchFarmByIdMutation();
   const {data:supervisors} = useFetchFreeSupervisorsQuery();
- 
+  
   const { toast } = useToast()
   const { register, handleSubmit, control, reset } = useForm<FarmData>({
     resolver: zodResolver(farmSchema),
   })
+//get the current supervisor of the farm
+  const [fetchSupervisor, { data: supervisor }] = useFetchOneSupervisorMutation();
+
+// استخدام الـ hook
+// useEffect(() => {
+//   fetchSupervisor({ id: 'supervisor-id' });
+// }, []);
 
   const onSubmit = async (data: FarmData) => {
     try {
@@ -67,10 +74,40 @@ export function FarmDetails({ farmId }: { farmId: number }) {
   }
 
   useEffect(() => {
-    fetchData({"id":farmId}).then(data => {
-      reset(data.data)
-    })
-  }, [farmId, reset])
+    if (farmId) {
+      const loadFarmData = async () => {
+        const result = await fetchData({ "id": farmId });
+        if (result.data?.farm_supervisor) {
+          await fetchSupervisor({ id: result.data.farm_supervisor });
+        }
+        reset(result.data);
+      };
+      loadFarmData();
+    }
+  }, [farmId]);
+
+  const supervisorOptions = useMemo(() => {
+    const options = [];
+    if (supervisor) {
+      options.push(
+        <SelectItem key={supervisor.u_id} value={supervisor.name}>
+          {supervisor.name}
+        </SelectItem>
+      );
+    }
+    if (supervisors) {
+      supervisors.forEach((sup) => {
+        if (sup.u_id !== supervisor?.u_id) {
+          options.push(
+            <SelectItem key={sup.u_id} value={sup.name}>
+              {sup.name}
+            </SelectItem>
+          );
+        }
+      });
+    }
+    return options;
+  }, [supervisor, supervisors]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white/5 border-solid border-blue-500 p-4 border-2  rounded-md shadow-md" dir="rtl">
@@ -135,27 +172,27 @@ export function FarmDetails({ farmId }: { farmId: number }) {
         <Label className='font-bold text-3xl/2' htmlFor="is_running">المزرعة نشطة</Label>
       </div>
 
-      <div className='flex flex-row items-center justify-between gap-2 font-bold flex-1  '>
-  <Label className='font-bold text-3xl/2' htmlFor="farm_supervisor">مشرف المزرعة</Label>
-  <Controller
-    name="farm_supervisor"
-    control={control}
-    render={({ field }) => (
-      <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing} >
-        <SelectTrigger>
-          <SelectValue placeholder="اختر مشرف المزرعة" />
-        </SelectTrigger>
-        <SelectContent className='bg-white'>
-          {supervisors && supervisors.map((supervisor) => (
-            <SelectItem key={supervisor.id} value={supervisor.name}>
-              {supervisor.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    )}
-  />
-</div>
+      <div className='flex flex-row items-center justify-between gap-2 font-bold flex-1'>
+        <Label className='font-bold text-3xl/2' htmlFor="farm_supervisor">مشرف المزرعة</Label>
+        <Controller
+          name="farm_supervisor"
+          control={control}
+          render={({ field }) => (
+            <Select 
+              onValueChange={field.onChange} 
+              value={field.value || supervisor?.name} 
+              disabled={!isEditing}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="اختر مشرف المزرعة" />
+              </SelectTrigger>
+              <SelectContent className='bg-white'>
+                {supervisorOptions}
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </div>
 </div>
       {isEditing ? (
         <div className="flex justify-center items-center space-x-4 gap-4">

@@ -1,4 +1,3 @@
-
 import { Hono } from "hono";
 import { Env } from "./route";
 import { z } from "zod";
@@ -9,6 +8,7 @@ import {getSupabase, getUser} from '@/utils/supabase/auth.middleware';
 //const supabase = createClient();
 type SuperVisors = Tables<"supervisors">;
 const app = new Hono<Env>()
+
 .get("/free_sup", async (c) => {
   try {
     const {user,error:userError} =await getUser(c);  
@@ -63,6 +63,54 @@ let supervisorsArr=data?.map((item)=>item.u_id)
     } catch (error: any) {
       console.log("error in get supervisors", error);
       return c.json({ error: "error in get supervisors " }, 400);
+    }
+  })
+  .get("/:id", async (c) => {
+    try {
+      const id = c.req.param("id");
+    
+      const {user, error: userError} = await getUser(c);  
+      const schema = user?.user_metadata.schema ?? 'public';
+      
+      const supabase = getSupabase(c);
+      
+      const { data, error } = await supabase
+        .schema(schema)
+        .from("supervisors")
+        .select(`
+          name,
+          phone_numbers,
+          u_id,
+          details,
+          farms(
+            farm_name,
+            farm_supervisor
+          )
+        `)
+        .eq('u_id', id)
+        .single();
+     
+      if (error) {
+        console.log('error in get one supervisor',error);
+        return c.json({
+          error: `خطأ في جلب بيانات المشرف: ${error.message}`
+        }, 200);
+      }
+
+      if (!data) {
+        return c.json({
+          error: "لم يتم العثور على المشرف"
+        }, 404);
+      }
+
+      return c.json({ supervisor: data });
+      
+    } catch (error: any) {
+      console.log("خطأ في جلب بيانات المشرف", error);
+      return c.json({ 
+        error: "خطأ في جلب بيانات المشرف",
+        details: error.message 
+      }, 400);
     }
   })
   .post(

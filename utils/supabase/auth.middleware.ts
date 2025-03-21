@@ -29,7 +29,7 @@ export const getUser =async (c: Context) => {
 
 }
 export const setUser=(c: Context,user:any)=>{
-    console.log('setting user');
+   // console.log('setting user');
   return  c.set('user',user);
 }
 type SupabaseEnv = {

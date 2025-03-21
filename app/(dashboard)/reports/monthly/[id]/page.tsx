@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { format } from "date-fns"
 import { ar } from "date-fns/locale"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DatePicker } from "@/components/date-picker"
-import { useGetMonthlyReportMutation } from "@/lib/services/farms-api"
+import { useGetMonthlyReportMutation, useGetAmberReportMutation, useGetDailyReportMutation } from "@/lib/services/farms-api"
 import {
   Table,
   TableBody,
@@ -24,6 +24,8 @@ import {
   SortingState,
 } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
+import { AmberDailyReport } from "@/components/tables/AmberDailyReport"
+import MonthlyReportTable from "../../_components/MonthlyReportTable"
 
 interface MonthlyReport {
 //   prodDate: string
@@ -54,7 +56,11 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
   const [reportData, setReportData] = useState<MonthlyReport[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [getMonthlyReport, { isLoading }] = useGetMonthlyReportMutation()
-
+  const [selectedRow,setSelectedRow] = useState<MonthlyReport|any>();
+  // const [getAmberReport,{isLoading:isDailyReportLoading}] = useGetAmberReportMutation()
+  // const [dailyReportData,setDailyReportData]=useState<any[]>([]);
+  const [dailyReportData, setDailyReportData] = useState<any[]>([])
+  const [getDailyReport, { isLoading: isDailyReportLoading }] = useGetDailyReportMutation()
   const columns = useMemo<ColumnDef<MonthlyReport>[]>(
     () => [
       {
@@ -179,8 +185,32 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
     }
   }, [reportData])
 
+  const handleRowClick = async (row: MonthlyReport) => {
+   console.log('in row click');
+    if (selectedRow &&( selectedRow.prod_date === row.prod_date)) {
+      console.log('inside if selectedRow')
+      setSelectedRow(null)
+      setDailyReportData([])
+      return;
+    }
+    try {
+      setSelectedRow(row);
+      const result = await await getDailyReport({ 
+        date: row.prod_date,
+        farmId: Number(params.id) 
+      }).unwrap()
+      console.log("تقرير Amber:", result);
+      if (result?.ambers) {
+        console.log(result);
+        setDailyReportData(result.ambers)
+      }
+    } catch (error) {
+      console.error("خطأ في جلب تقرير Amber:", error);
+    }
+  };
+
   return (
-    <div className="container mx-auto py-10" dir="rtl">
+    <div className="container mx-auto gap-4 py-10" dir="rtl">
       <Card className="bg-white/90">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>التقرير الشهري - {reportData[0]?.farm_name}</CardTitle>
@@ -192,69 +222,27 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
+            <div className="flex flex-col gap-4 items-center justify-center">
             <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="bg-melon-400">
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id} className="text-center font-bold font-sans">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    <>
-                      {table.getRowModel().rows.map((row) => (
-                        <TableRow
-                          key={row.id}
-                          data-state={row.getIsSelected() && "selected"}
-                          className="text-center font-sans hover:bg-white/50 hover:cursor-pointer hover:font-bold"
-                        >
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                      {totals && (
-                        <TableRow className="font-bold bg-muted/50">
-                          <TableCell>الإجمالي</TableCell>
-                          <TableCell className="text-center">{totals.death}</TableCell>
-                          <TableCell className="text-center">{totals.prod_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.prod_egg_1}</TableCell>
-                          <TableCell className="text-center">{totals.out_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.out_egg_1}</TableCell>
-                          <TableCell className="text-center">{totals.remain_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.remain_egg_1}</TableCell>
-                          <TableCell className="text-center">{totals.income_feed}</TableCell>
-                          <TableCell className="text-center">{totals.intak_feed}</TableCell>
-                          <TableCell className="text-center">{totals.remain_feed}</TableCell>
-                        </TableRow>
-                      )}
-                    </>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        لا توجد نتائج.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <MonthlyReportTable table={table} reportData={reportData} onRowClick={handleRowClick} />
+            </div>
+            
             </div>
           )}
         </CardContent>
       </Card>
+      <div className="rounded-md border mt-4">
+            {dailyReportData &&selectedRow &&
+           
+          <AmberDailyReport 
+            data={dailyReportData}
+            isLoading={isDailyReportLoading}
+            farmId={parseInt(params.id)}
+            date={format(selectedRow?.prod_date, 'yyyy-MM-dd')}
+          />
+       
+}
+        </div>
     </div>
   )
 }

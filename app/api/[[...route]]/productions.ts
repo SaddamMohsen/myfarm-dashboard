@@ -21,7 +21,7 @@ const app = new Hono<Env>()
             const schema = loginUser?.user_metadata.schema??'public';
             const supabase = getSupabase(c); 
       const date = c.req.query('date');
-      console.log('schema', schema);
+     
 
       if (date) {
         const parsedDate = new Date(date);

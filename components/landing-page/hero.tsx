@@ -8,11 +8,11 @@ export default function Hero() {
         <div className="grid lg:grid-cols-3 gap-12 items-center justify-items-end">
           <div className="space-y-6 col-span-2">
             <h1 className="text-4xl md:text-6xl font-bold "> مزرعتي</h1>
-            <p className="text-xl md:text-3xl text-primary-foreground/90 font-extrabold ">
+            <p className="text-xl md:text-3xl text-melon-200 font-extrabold ">
             تتبّع الإنتاج، وراقب المخزون، وحسّن عمليات مزرعة الدواجن الخاصة بك من خلال تطبيق  مزرعتي الخاص بنا.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 font-extrabold text-2xl">
+              <Button size="lg" className="bg-secondary text-melon-200 hover:bg-secondary/90 font-extrabold text-2xl">
                 ابدا تجربتك المجانية لمدة 30 يومًا
               </Button>
               <Button size="lg" variant="outline" className="bg-white/10 font-extrabold text-2xl hover:bg-white/20">

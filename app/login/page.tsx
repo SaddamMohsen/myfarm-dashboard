@@ -8,7 +8,7 @@ import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import {ErrorMessage} from "@/components/ErrorMessage";
 import MyFarmLogo from "@/components/myfarm-logo";
-import { useLoginUserMutation } from "@/lib/services/farms-api";
+import { useGetUserInfoQuery, useLoginUserMutation } from "@/lib/services/farms-api";
 import { set } from "date-fns";
 
 export default function Login({
@@ -16,7 +16,15 @@ export default function Login({
 }: {
   searchParams: { message: string };
 }) {
+  const { data: user, isLoading:isFetchingUser } = useGetUserInfoQuery();
 
+  // Log the user information for debugging purposes
+  
+
+  // Redirect to the login page if the user is not authenticated and loading is complete
+  if (user && !isFetchingUser) {
+    return redirect("/main");
+  }
  const [login,{isLoading}]=useLoginUserMutation();
  const [error,setError]=useState<string|null>(null);
   const signIn = async (formData: FormData) => {

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 const routes = [
   {
-    href: "/",
+    href: "/main",
     label: "الرئيسية",
   },
   {
@@ -21,6 +21,9 @@ const routes = [
     label: "المشرفين",
   },
   {
+    href: "/reports",
+    label: "التقارير",
+  },{
     href: "/profile",
     label: "الاعدادات",
   },

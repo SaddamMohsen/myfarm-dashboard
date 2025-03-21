@@ -42,15 +42,15 @@ interface AmberDailyReportProps {
 
 export function AmberDailyReport({ data, isLoading, farmId, date }: AmberDailyReportProps) {
   return (
-    <Card className="bg-white/50">
+    <Card >
       <CardHeader>
         <CardTitle className="text-center">التقرير اليومي للعنابر - مزرعة {farmId}</CardTitle>
         <div className="text-center text-muted-foreground">{date}</div>
       </CardHeader>
       <CardContent>
-        <Table dir="rtl" className="bg-white/50">
-          <TableHeader>
-            <TableRow>
+        <Table dir="rtl" >
+          <TableHeader className="">
+            <TableRow className="bg-ebony-900 text-black-200 border-1 border-melon-400 text-center">
               <TableHead className="text-right">رقم العنبر</TableHead>
               <TableHead className="text-right">عدد الدجاج</TableHead>
               <TableHead className="text-center">النافق</TableHead>

@@ -18,7 +18,7 @@ const app = new Hono<Env>()
     //const token = c.var.jwt;
           const {user,error} =await getUser(c);  
           const schema = user?.user_metadata.schema??'public';
-          console.log('schema',schema);
+         
           const supabase = getSupabase(c); // getAuthenticatedSupabase(token);
       const id = c.req.query('id');
     if(id){

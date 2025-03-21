@@ -26,7 +26,7 @@ export function DatePicker({ date, onSelect }: DatePickerProps) {
           )}
         >
           <CalendarIcon className="ml-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: ar }) : "اختر تاريخ"}
+          {date ? format(date, "PPPP", { locale: ar }) : "اختر تاريخ"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

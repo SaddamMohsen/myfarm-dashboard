@@ -74,7 +74,50 @@ const app = new Hono<Env>()
       console.error("خطأ في جلب التقرير الشهري:", error);
       return c.json({ error: error.message }, 400);
     }
-  });
+  }).get("/daily/:id",zValidator("query",
+    z.object({
+        date: z.string(),
+    })), async (c) => {
+try {
+const {user,error:userError} =await getUser(c);  
+    const schema = user?.user_metadata.schema??'public';
+     const supabase = getSupabase(c); 
+const farmId = c.req.param('id');
+const date = c.req.query('date');
+
+if (!date) {
+  return c.json({ error: "التاريخ مطلوب" }, 400);
+}
+
+const parsedDate = new Date(date);
+const month = parsedDate.getMonth() + 1;
+const year = parsedDate.getFullYear();
+
+const {data,error} = await supabase.schema(schema).rpc('get_daily_report',{
+  f_id:parseInt(farmId),
+  amb_id:0,
+  rep_date:date
+});
+if (error) throw error;
+const {data:farmData,error:farmError} = await supabase
+.schema(schema).from('farms')
+.select('farm_name').eq('id',parseInt(farmId)).single();
+if(farmError) throw farmError; const report = data.map((item:any) => ({
+  ...item,
+  farm_name: farmData?.farm_name
+}));
+console.log('daily report',report);
+    return c.json({ 
+      farmId,
+      month: `${year}-${month}`,
+      report: [...report]
+    });
+
+  } catch (error: any) {
+    console.error("خطأ في جلب التقرير الشهري:", error);
+    return c.json({ error: error.message }, 400);
+  }
+});
 
 export default app;
 [{
