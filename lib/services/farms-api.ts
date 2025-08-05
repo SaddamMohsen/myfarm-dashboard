@@ -253,18 +253,20 @@ export const farmsApi = createApi({
         }
       },
     }),
-    getMonthlyReport: builder.mutation<any, { farmId: string; date: string }>({
+    getMonthlyReport: builder.mutation<any, { farmId: any; date: string }>({
       async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
         try {
+          console.log(`id in api get monthlyReport ${params.farmId}:${params.date}`)
           const res = await client.api.reports.monthly[":id"].$get({
             param: {
-              id: params.farmId,
+              id: params.farmId.toString(),
             },
             query: {
               date: params.date,
             },
           });
           const data = await res.json();
+          console.log(`data from getMonthlyRep ${data}`)
           return { data };
         } catch (error: any) {
           return {
@@ -367,6 +369,64 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getMedicationReport: builder.mutation<any, { 
+      farmId: string; 
+      start_date: string; 
+      end_date: string 
+    }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.reports.medication[":id"].$get({
+            param: {
+              id: params.farmId,
+            },
+            query: {
+              start_date: params.start_date,
+              end_date: params.end_date,
+            },
+          });
+          const data = await res.json();
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+    getVaccinationReport: builder.mutation<any, { 
+      farmId: string; 
+      start_date: string; 
+      end_date: string 
+    }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.reports.vaccination[":id"].$get({
+            param: {
+              id: params.farmId,
+            },
+            query: {
+              start_date: params.start_date,
+              end_date: params.end_date,
+            },
+          });
+          const data = await res.json();
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -386,4 +446,6 @@ export const {
   useGetUserInfoQuery,
   useGetAmberReportMutation,
   useFetchOneSupervisorMutation,
+  useGetMedicationReportMutation,
+  useGetVaccinationReportMutation,
 } = farmsApi;

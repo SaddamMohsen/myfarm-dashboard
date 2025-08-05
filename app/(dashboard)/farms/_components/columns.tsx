@@ -127,7 +127,7 @@ export const columns: ColumnDef<Farms, any>[] = [
             
             <Link href={`/farms/${report.id}`} >
             
-                                <span className="flex flex-row space-y-4 gap-2 items-center justify-center">
+                                <span className="flex flex-row space-y-4 gap-2 items-center justify-center text-black-100">
                                 عرض تفاصيل المزرعة
                                     <EyeIcon className="w-6 h-6" /> 
                                 </span>

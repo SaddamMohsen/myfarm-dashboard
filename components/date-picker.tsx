@@ -21,11 +21,11 @@ export function DatePicker({ date, onSelect }: DatePickerProps) {
         <Button
           variant={"outline"}
           className={cn(
-            "justify-start text-right font-normal",
+            "justify-between text-center font-normal w-full",
             !date && "text-muted-foreground"
           )}
         >
-          <CalendarIcon className="ml-2 h-4 w-4" />
+          <CalendarIcon className="ml-2 h-4 w-4 text-right" />
           {date ? format(date, "PPPP", { locale: ar }) : "اختر تاريخ"}
         </Button>
       </PopoverTrigger>

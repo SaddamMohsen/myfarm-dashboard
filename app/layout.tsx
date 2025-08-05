@@ -22,7 +22,7 @@ export default function RootLayout({
     <StoreProvider>
       <html lang="en"  className={GeistSans.className}>
         <body>
-          <main className="min-h-screen flex flex-col w-full items-center bg-gradient-to-b from-[#ffffff] to-[#6FC9EB]/80">
+          <main className="min-h-screen flex flex-col w-full items-center bg-gradient-to-b from-[#ffffff] to-[#efe6e6]/50">
             {children}
           </main>
           <Toaster />

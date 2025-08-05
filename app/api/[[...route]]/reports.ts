@@ -117,6 +117,159 @@ console.log('daily report',report);
     console.error("خطأ في جلب التقرير الشهري:", error);
     return c.json({ error: error.message }, 400);
   }
+}).get("/medication/:id", zValidator("query",
+  z.object({
+    start_date: z.string(),
+    end_date: z.string(),
+  })), async (c) => {
+  try {
+    const {user, error:userError} = await getUser(c);  
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c); 
+    const farmId = c.req.param('id');
+    const startDate = c.req.query('start_date');
+    const endDate = c.req.query('end_date');
+
+    if (!startDate || !endDate) {
+      return c.json({ error: "تاريخ البداية والنهاية مطلوبان" }, 400);
+    }
+
+    // Validate dates
+    const startParsed = new Date(startDate);
+    const endParsed = new Date(endDate);
+    
+    if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
+      return c.json({ error: "تنسيق التاريخ غير صحيح" }, 400);
+    }
+
+    if (startParsed > endParsed) {
+      return c.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, 400);
+    }
+
+    // Get medication data for the specified period
+    const { data, error } = await supabase
+      .schema(schema)
+      .from('medication')
+      .select(`
+        *,
+        farms!inner (
+          farm_name
+        )
+      `)
+      .eq('farm_id', parseInt(farmId))
+      .eq('medication_type', 'medication')
+      .gte('medication_date', startDate)
+      .lte('medication_date', endDate)
+      .order('medication_date', { ascending: true });
+
+    if (error) throw error;
+
+    // Get farm data
+    const { data: farmData, error: farmError } = await supabase
+      .schema(schema)
+      .from('farms')
+      .select('farm_name')
+      .eq('id', parseInt(farmId))
+      .single();
+
+    if (farmError) throw farmError;
+
+    // Format the report
+    const report = data.map((item: any) => ({
+      ...item,
+      farm_name: farmData?.farm_name
+    }));
+
+    console.log('medication report', report);
+
+    return c.json({ 
+      farmId,
+      period: {
+        start_date: startDate,
+        end_date: endDate
+      },
+      report: [...report]
+    });
+
+  } catch (error: any) {
+    console.error("خطأ في جلب تقرير الأدوية:", error);
+    return c.json({ error: error.message }, 400);
+  }
+}).get("/vaccination/:id", zValidator("query",
+  z.object({
+    start_date: z.string(),
+    end_date: z.string(),
+  })), async (c) => {
+  try {
+    const {user, error:userError} = await getUser(c);  
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c); 
+    const farmId = c.req.param('id');
+    const startDate = c.req.query('start_date');
+    const endDate = c.req.query('end_date');
+
+    if (!startDate || !endDate) {
+      return c.json({ error: "تاريخ البداية والنهاية مطلوبان" }, 400);
+    }
+
+    // Validate dates
+    const startParsed = new Date(startDate);
+    const endParsed = new Date(endDate);
+    
+    if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
+      return c.json({ error: "تنسيق التاريخ غير صحيح" }, 400);
+    }
+
+    if (startParsed > endParsed) {
+      return c.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, 400);
+    }
+
+    // Get medication data for the specified period
+    const { data, error } = await supabase
+      .schema(schema)
+      .from('medication')
+      .select(`
+        *
+      `)
+      .eq('farm_id', parseInt(farmId))
+      .eq('medication_type', 'vaccination')
+      .gte('medication_date', startDate)
+      .lte('medication_date', endDate)
+      .order('medication_date', { ascending: true });
+
+    if (error) throw error;
+
+    // Get farm data
+    const { data: farmData, error: farmError } = await supabase
+      .schema(schema)
+      .from('farms')
+      .select('farm_name')
+      .eq('id', parseInt(farmId))
+      .single();
+
+    if (farmError) throw farmError;
+
+    // Format the report
+    const report = data.map((item: any) => ({
+      ...item,
+      farm_name: farmData?.farm_name
+    }));
+
+    console.log('vaccination report', report);
+
+    return c.json({ 
+      farmId,
+      period: {
+        start_date: startDate,
+        end_date: endDate
+      },
+      report: [...report]
+    });
+
+  } catch (error: any) {
+    console.error("خطأ في جلب تقرير الأدوية:", error);
+    return c.json({ error: error.message }, 400);
+  }
 });
 
 export default app;
