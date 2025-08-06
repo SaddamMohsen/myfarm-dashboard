@@ -62,3 +62,14 @@ export const superVisorSchema = z.object({
   phone_numbers: z.number().int().positive("Phone number must be a positive integer"), // Ensures phone_numbers is a positive integer
   details: z.string().optional(), // Ensures details is a string and is optional
 });
+export interface ProductionSummary{
+  farmName:String;
+  death:Number;
+  prodCarton:Number;
+  prodTray:Number;
+  incomeFeed:Number;
+  intakFeed:Number;
+  remainFeed:Number;
+  daysCount:Number;
+  noOfFlock:Number;
+}

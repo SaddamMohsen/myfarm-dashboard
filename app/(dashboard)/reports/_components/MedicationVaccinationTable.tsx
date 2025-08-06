@@ -28,7 +28,8 @@ interface ReportItem {
   farm_name: string;
 }
 
-export default function MedicationVaccinationTable({ farmId, farmName }: MedicationVaccinationTableProps) {
+export default function MedicationVaccinationTable({ farmId, farmName }
+    : MedicationVaccinationTableProps) {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [reportType, setReportType] = useState<'medication' | 'vaccination'>('medication');

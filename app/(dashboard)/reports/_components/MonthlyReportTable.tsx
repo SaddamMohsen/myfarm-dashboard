@@ -114,7 +114,7 @@ const MonthlyReportTable: React.FC<MonthlyReportTableProps> =
   const monthTable = useReactTable({
     data: reportData,
     columns,
-   // onSortingChange: setSorting,
+  // onSortingChange: setSorting,
        
    
     getCoreRowModel: getCoreRowModel(),
@@ -123,6 +123,7 @@ const MonthlyReportTable: React.FC<MonthlyReportTableProps> =
     //   sorting,
     // },
   })
+
     const totals = useMemo(() => {
         if (reportData.length === 0) return null
         return {

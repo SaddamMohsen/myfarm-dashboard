@@ -270,17 +270,144 @@ console.log('daily report',report);
     console.error("خطأ في جلب تقرير الأدوية:", error);
     return c.json({ error: error.message }, 400);
   }
+}).get("/production/:id?", zValidator("query",
+  z.object({
+    start_date: z.string(),
+    end_date: z.string(),
+    farm_id: z.string().optional()}),
+    (result, c) => {
+      console.log(result.data);
+      if (!result.success) {
+        console.log("invalid values",result.error);
+        return c.text("Invalid Values!", 400);
+      }
+  }), async (c) => {
+  try {
+    console.log(`in get prod repo ${c.req.param('id')}`)
+    const {user, error:userError} = await getUser(c);  
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c); 
+    const farmId = c.req.param('id');
+    const startDate = c.req.query('start_date');
+    const endDate = c.req.query('end_date');
+    const queryFarmId = c.req.query('farm_id');
+
+    if (!startDate || !endDate) {
+      return c.json({ error: "تاريخ البداية والنهاية مطلوبان" }, 400);
+    }
+
+    // Validate dates
+    const startParsed = new Date(startDate);
+    const endParsed = new Date(endDate);
+    
+    if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
+      return c.json({ error: "تنسيق التاريخ غير صحيح" }, 400);
+    }
+
+    if (startParsed > endParsed) {
+      return c.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, 400);
+    }
+
+    // Determine which farm ID to use
+    const targetFarmId = queryFarmId || farmId;
+
+    // Build the query
+    let query = supabase
+      .schema(schema)
+      .from('production')
+      .select(`
+        *,
+        farms!inner (
+          farm_name
+        )
+      `)
+      .gte('prodDate', startDate)
+      .eq('amber_id',2)
+      .lte('prodDate', endDate)
+      .order('prodDate', { ascending: true });
+
+    // Add farm filter if farm ID is provided
+    if (targetFarmId) {
+      query = query.eq('farm_id', parseInt(targetFarmId));
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    // Calculate summary statistics
+    const summary = data.reduce((acc: any, item: any) => {
+   
+      return {
+        total_prod_carton: (acc.total_prod_carton || 0) + (item.prodCarton || 0),
+        total_prod_tray: (acc.total_prod_tray || 0) + (item.prodTray||0),
+        total_out_carton: (acc.total_out_carton || 0) + (item.outCarton || 0),
+        total_out_tray: (acc.total_out_tray || 0) + (item.outTray || 0),
+        total_death: (acc.total_death || 0) + (item.death || 0),
+        total_incom_feed: (acc.total_incom_feed || 0) + (item.incom_feed || 0),
+        total_intak_feed: (acc.total_intak_feed || 0) + (item.intak_feed || 0),
+        total_remain_feed: (acc.total_remain_feed || 0) + (item.remain_feed || 0),
+        days_count: (acc.days_count || 0) + 1
+      };
+    }, {});
+// Get remaining hens count from inventory
+let remainingHens = 0;
+try {
+  let invQuery=supabase
+  .schema(schema)
+  .from('inventory')
+  .select('quantity')
+  .eq('item_code', '001-001')
+  if (targetFarmId) {
+    invQuery = query.eq('farm_id', parseInt(targetFarmId));
+  }
+
+
+  const { data: inventoryData, error: inventoryError } = await invQuery
+   
+  
+
+
+  if (!inventoryError && Array.isArray(inventoryData)) {
+    remainingHens = inventoryData.reduce((acc: number, item: { quantity: any }) => {
+      return acc + (Number(item.quantity) || 0);
+    }, 0);
+  }
+} catch (error) {
+  console.log('No inventory data found for hens or error occurred:', error);
+  remainingHens = 0;
+}
+    //Get the Carton from tray
+    const trayCount = summary.total_prod_tray;
+      const cartonFromTray = Math.floor(trayCount / 12);
+      const remainderTray = trayCount % 12;
+     const newSummary ={
+      ...summary,
+      total_prod_carton:summary.total_prod_carton+cartonFromTray,
+      total_prod_tray:remainderTray,
+      remaining_hens:remainingHens
+      }
+ 
+
+    // Format the report
+    const report = data.map((item: any) => ({
+      ...item,
+      farm_name: item.farms?.farm_name
+    }));
+    return c.json({ 
+      farmId: targetFarmId || 'all',
+      period: {
+        start_date: startDate,
+        end_date: endDate
+      },
+      newSummary,
+      report: [...report]
+    });
+
+  } catch (error: any) {
+    console.error("خطأ في جلب تقرير الإنتاج:", error);
+    return c.json({ error: error.message }, 400);
+  }
 });
 
 export default app;
-[{
-    prod_date: '2025-01-14',
-    death: 5,
-    income_feed: 30,
-    intak_feed: 22,
-    remain_feed: 14,
-    prod_egg: [ 5, 15 ],
-    out_egg: [ 0, 110 ],
-    remain_egg: [ 7, 36 ],
-    farm_name: 'farm_name'
-}]

@@ -345,6 +345,7 @@ export const farmsApi = createApi({
       },
     }),
     fetchOneSupervisor: builder.mutation<SuperVisor, { id: string }>({
+       // @ts-expect-error
       async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
         try {
           const res = await client.api.supervisors[":id"].$get({
@@ -353,10 +354,11 @@ export const farmsApi = createApi({
             },
           });
           const response = await res.json();
-          if ("error" in response) {
-            throw new Error(response.error);
-          }
-          return { data: response?.supervisor };
+          if ("error" in response) 
+            return {error:response.error};
+            //throw new Error(response.error);
+          
+          return { data: response.supervisor };
         } catch (error: any) {
           console.log(error);
           return {
@@ -427,6 +429,61 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getProductionReport: builder.mutation<any, { 
+      farmId?: string; 
+      start_date: string; 
+      end_date: string 
+    }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          console.log(` in api ${params.start_date}:${params.end_date}`)
+          console.log(typeof params.start_date)
+        
+          const url =
+           // @ts-expect-error
+            client.api.reports.production[':id'].$get({
+              param:
+              {
+                id:params.farmId||''
+              },
+              query:{
+                start_date: params.start_date,
+                end_date: params.end_date,
+              }
+            })
+            // :  client.api.reports.production.$get({
+            //   query:{
+            //     start_date: params.start_date,
+            //     end_date: params.end_date,
+            //   }
+            // });
+            console.log(` in api ${url}`)
+          const res = await url
+          // fetch(url, {
+          //   method: 'GET',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({
+          //     start_date: params.start_date,
+          //     end_date: params.end_date,
+          //     farm_id: params.farmId,
+          //   }),
+          // });
+          const data = await res.json();
+          console.log(data)
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -448,4 +505,5 @@ export const {
   useFetchOneSupervisorMutation,
   useGetMedicationReportMutation,
   useGetVaccinationReportMutation,
+  useGetProductionReportMutation,
 } = farmsApi;
