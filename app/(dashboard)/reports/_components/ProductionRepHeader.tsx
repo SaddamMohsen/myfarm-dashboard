@@ -6,28 +6,52 @@ import { useGetProductionReportMutation } from "@/lib/services/farms-api";
 import { format } from "date-fns";
 import { Loader } from "lucide-react";
 import { useState } from "react";
-
+import MonthlyReportTable from "./MonthlyReportTable";
+import { FarmSummaryTable } from "./FarmSummaryTable"
 interface ProductionRepHeaderProps {
     farmId: string;
     farmName?: string;
   }
 
-
+export interface ProductionSummary {
+  total_prod_carton: number;
+  total_prod_tray: number;
+  total_out_carton: number;
+  total_out_tray: number;
+  total_death: number;
+  total_incom_feed: number;
+  total_intak_feed: number;
+  total_remain_feed: number;
+  days_count: number;
+  remaining_hens: number;
+}
+export interface ProductionReport {
+  farmId: string;
+  period: {
+    start_date: string;
+    end_date: string;
+  };
+  report: ProductionSummary[];
+}
 export default function ProductionRepHeader({farmId, farmName}:ProductionRepHeaderProps){
-    const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+    const [startDate, setStartDate] = useState<Date>(() => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - 1);
+        return date;
+      });
+  const [endDate, setEndDate] = useState<Date>(new Date());
   const [reportType, setReportType] = useState<'monthly'|'daily'>('monthly')
   const [getSummaryReport, { data: summaryData, isLoading: summaryLoading }] =
   useGetProductionReportMutation();
 
   var isLoading = summaryLoading
-  var currentData = summaryData
+ 
   const handleGenerateReport = async () => {
     if (!startDate || !endDate) {
       alert("يرجى تحديد تاريخ البداية والنهاية");
       return;
     }
-
+console.log(summaryData);
     const startDateStr = format(startDate, 'yyyy-MM-dd');
     const endDateStr = format(endDate, 'yyyy-MM-dd');
 
@@ -37,7 +61,9 @@ export default function ProductionRepHeader({farmId, farmName}:ProductionRepHead
         start_date: startDateStr,
         end_date: endDateStr
       });
-    } else {}
+    } else {
+      console.log('there is nothing to fetch')
+    }
 }
 
     return(
@@ -50,7 +76,7 @@ export default function ProductionRepHeader({farmId, farmName}:ProductionRepHead
         <CardContent>
           <div className="space-y-4">
             {/* Controls */}
-            <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-wrap gap-4 items-end justify-center">
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="report-type">نوع التقرير</Label>
                 <select
@@ -92,23 +118,41 @@ export default function ProductionRepHeader({farmId, farmName}:ProductionRepHead
             </div>
   </div>
             {/* Report Summary */}
-            {currentData && (
+            {summaryData && (
+             
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-right mb-2">ملخص التقرير</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
                   <div>
-                    <span className="font-medium">المزرعة:</span> {currentData.farmId}
+                    <span className="font-medium">المزرعة:</span> {summaryData.farm_name}
                   </div>
                   <div className="text-xs">
                     <span className="font-small">الفترة:</span>من 
-                     {currentData.period?.start_date} - الى {currentData.period?.end_date}
+                     {summaryData.period?.start_date} - الى {summaryData.period?.end_date}
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium">عدد السجلات:</span> {currentData.report?.length || 0}
+                    <span className="font-medium">عدد السجلات:</span> {summaryData.report?.length || 0}
                   </div>
                 </div>
               </div>
+             
             )}
+            
+            
+              {summaryData && summaryData.farm_summaries ? (
+                <div>
+                <FarmSummaryTable summaryData={summaryData.farm_summaries} />
+                </div>
+              ): (
+                <div className="flex justify-center items-center h-96">
+                  <div className="text-center text-gray-500">
+                    لا يوجد بيانات لعرضها
+                  </div>
+                </div>
+              )}
+          
+  
+          
             
             </CardContent>
         </Card>

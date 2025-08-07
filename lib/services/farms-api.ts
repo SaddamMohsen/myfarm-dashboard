@@ -457,7 +457,7 @@ export const farmsApi = createApi({
             //     end_date: params.end_date,
             //   }
             // });
-            console.log(` in api ${url}`)
+          
           const res = await url
           // fetch(url, {
           //   method: 'GET',
@@ -472,7 +472,7 @@ export const farmsApi = createApi({
           // });
           const data = await res.json();
           console.log(data)
-          return { data };
+          return  {data} ;
         } catch (error: any) {
           return {
             error: {

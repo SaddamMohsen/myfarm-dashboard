@@ -20,32 +20,8 @@ interface Farm {
 const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => {
   const [activeTab, setActiveTab] = useState("production");
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
-  
+
   const { data: farms, isLoading } = useFetchAllFarmsQuery();
-
-  // Monthly report state
-  const [getMonthlyReport, { isLoading: isMonthlyLoading }] = useGetMonthlyReportMutation();
-  const [monthlyReport, setMonthlyReport] = useState<any[]>([]);
-
-  // Fetch monthly report when farm or tab changes
-  // useEffect(() => {
-  //   const fetchReport = async () => {
-  //     if (selectedFarm && activeTab === "monthly") {
-  //       try {
-  //         const result = await getMonthlyReport({
-  //           farmId: selectedFarm.id,
-  //           date: startDate.toISOString().slice(0, 10),
-  //         }).unwrap();
-  //         setMonthlyReport(result?.report || []);
-  //       } catch (error) {
-  //         setMonthlyReport([]);
-  //       }
-  //     }
-  //   };
-  //   fetchReport();
-  // }, [selectedFarm, activeTab, getMonthlyReport, startDate]);
 
   const handleTabChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const tab = e.target.value;
@@ -55,7 +31,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
 
   const handleFarmChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const farmId = e.target.value;
-    console.log(`in select farm ${farmId}`);
+  
     
     if (farmId === "") {
       setSelectedFarm(null);
@@ -75,13 +51,8 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
     switch (activeTab) {
       case "production":
         return (
-          // <MonthlyReportTable
-          //   table="Monthly" 
-          //   reportData={monthlyReport} 
-          //   isLoading={isMonthlyLoading} 
-          //   onRowClick={()=>{}} 
-          // />
-          <ProductionRepHeader farmId={selectedFarm?.id??''} farmName={selectedFarm?.farm_name}/>
+        
+          <ProductionRepHeader farmId={selectedFarm?.id??'all'} farmName={selectedFarm?.farm_name??"الكل"}/>
         );
       case "daily":
         return (
@@ -137,7 +108,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
               <option value="medication">تقرير العلاجات واللقاحات</option>
             </select>
           </div>
-
+{/* 
           <div className="flex flex-col justify-center items-start p-4 mx-1 w-full">
             <label htmlFor="start-date" className="font-light text-slate-600 text-xs">تاريخ البداية:</label>
             <DatePicker 
@@ -152,7 +123,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
               date={endDate} 
               onSelect={(newDate) => newDate && setEndDate(newDate)} 
             />
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 

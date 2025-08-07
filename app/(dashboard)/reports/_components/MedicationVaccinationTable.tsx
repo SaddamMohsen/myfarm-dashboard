@@ -30,7 +30,11 @@ interface ReportItem {
 
 export default function MedicationVaccinationTable({ farmId, farmName }
     : MedicationVaccinationTableProps) {
-  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>(() => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    return date;
+  });
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [reportType, setReportType] = useState<'medication' | 'vaccination'>('medication');
 
@@ -43,8 +47,8 @@ export default function MedicationVaccinationTable({ farmId, farmName }
       return;
     }
 
-    const startDateStr = format(startDate, 'yyyy-MM-dd');
-    const endDateStr = format(endDate, 'yyyy-MM-dd');
+    const startDateStr = format(startDate, 'yyyy/MM/dd');
+    const endDateStr = format(endDate, 'yyyy/MM/dd');
 
     if (reportType === 'medication') {
       await getMedicationReport({
@@ -76,9 +80,9 @@ export default function MedicationVaccinationTable({ farmId, farmName }
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4  ">
           {/* Controls */}
-          <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex flex-wrap gap-4 justify-center">
             <div className="flex flex-col space-y-2">
               <Label htmlFor="report-type">نوع التقرير</Label>
               <select
@@ -109,14 +113,15 @@ export default function MedicationVaccinationTable({ farmId, farmName }
                
               />
             </div>
-
+            <div className="flex flex-col space-y-2 pt-5">
             <Button 
               onClick={handleGenerateReport}
               disabled={!startDate || !endDate || isLoading}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 "
             >
               {isLoading ? <Loader/>: "عرض التقرير"}
             </Button>
+            </div>
           </div>
 
           {/* Report Summary */}
@@ -125,7 +130,7 @@ export default function MedicationVaccinationTable({ farmId, farmName }
               <h3 className="font-semibold text-right mb-2">ملخص التقرير</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
                 <div>
-                  <span className="font-medium">المزرعة:</span> {currentData.farmId}
+                  <span className="font-medium">المزرعة:</span> {farmName }
                 </div>
                 <div className="text-xs">
                   <span className="font-small">الفترة:</span>من  {currentData.period?.start_date} - الى {currentData.period?.end_date}

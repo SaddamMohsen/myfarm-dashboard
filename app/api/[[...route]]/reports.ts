@@ -283,7 +283,7 @@ console.log('daily report',report);
       }
   }), async (c) => {
   try {
-    console.log(`in get prod repo ${c.req.param('id')}`)
+    
     const {user, error:userError} = await getUser(c);  
     const schema = user?.user_metadata.schema ?? 'public';
     const supabase = getSupabase(c); 
@@ -335,72 +335,115 @@ console.log('daily report',report);
 
     if (error) throw error;
 
-    // Calculate summary statistics
-    const summary = data.reduce((acc: any, item: any) => {
-   
-      return {
-        total_prod_carton: (acc.total_prod_carton || 0) + (item.prodCarton || 0),
-        total_prod_tray: (acc.total_prod_tray || 0) + (item.prodTray||0),
-        total_out_carton: (acc.total_out_carton || 0) + (item.outCarton || 0),
-        total_out_tray: (acc.total_out_tray || 0) + (item.outTray || 0),
-        total_death: (acc.total_death || 0) + (item.death || 0),
-        total_incom_feed: (acc.total_incom_feed || 0) + (item.incom_feed || 0),
-        total_intak_feed: (acc.total_intak_feed || 0) + (item.intak_feed || 0),
-        total_remain_feed: (acc.total_remain_feed || 0) + (item.remain_feed || 0),
-        days_count: (acc.days_count || 0) + 1
-      };
+    // Calculate summary statistics for each farm
+    const farmSummaries = data.reduce((acc: any, item: any) => {
+      const farmId = item.farm_id;
+      const farmName = item.farms?.farm_name || 'Unknown Farm';
+      
+      if (!acc[farmId]) {
+        acc[farmId] = {
+          farm_id: farmId,
+          farm_name: farmName,
+          total_prod_carton: 0,
+          total_prod_tray: 0,
+          total_out_carton: 0,
+          total_out_tray: 0,
+          total_death: 0,
+          total_incom_feed: 0,
+          total_intak_feed: 0,
+          total_remain_feed: 0,
+          days_count: 0
+        };
+      }
+      
+      acc[farmId].total_prod_carton += (item.prodCarton || 0);
+      acc[farmId].total_prod_tray += (item.prodTray || 0);
+      acc[farmId].total_out_carton += (item.outCarton || 0);
+      acc[farmId].total_out_tray += (item.outTray || 0);
+      acc[farmId].total_death += (item.death || 0);
+      acc[farmId].total_incom_feed += (item.incom_feed || 0);
+      acc[farmId].total_intak_feed += (item.intak_feed || 0);
+      acc[farmId].total_remain_feed += (item.remain_feed || 0);
+      acc[farmId].days_count += 1;
+      
+      return acc;
     }, {});
-// Get remaining hens count from inventory
-let remainingHens = 0;
-try {
-  let invQuery=supabase
-  .schema(schema)
-  .from('inventory')
-  .select('quantity')
-  .eq('item_code', '001-001')
-  if (targetFarmId) {
-    invQuery = query.eq('farm_id', parseInt(targetFarmId));
-  }
 
-
-  const { data: inventoryData, error: inventoryError } = await invQuery
-   
-  
-
-
-  if (!inventoryError && Array.isArray(inventoryData)) {
-    remainingHens = inventoryData.reduce((acc: number, item: { quantity: any }) => {
-      return acc + (Number(item.quantity) || 0);
-    }, 0);
-  }
-} catch (error) {
-  console.log('No inventory data found for hens or error occurred:', error);
-  remainingHens = 0;
-}
-    //Get the Carton from tray
-    const trayCount = summary.total_prod_tray;
+    // Convert tray to carton for each farm
+    const processedFarmSummaries = Object.values(farmSummaries).map((farmSummary: any) => {
+      const trayCount = farmSummary.total_prod_tray;
       const cartonFromTray = Math.floor(trayCount / 12);
       const remainderTray = trayCount % 12;
-     const newSummary ={
-      ...summary,
-      total_prod_carton:summary.total_prod_carton+cartonFromTray,
-      total_prod_tray:remainderTray,
-      remaining_hens:remainingHens
-      }
- 
+      
+      return {
+        ...farmSummary,
+        total_prod_carton: farmSummary.total_prod_carton + cartonFromTray,
+        total_prod_tray: remainderTray
+      };
+    });
+
+    // Get remaining hens count for each farm
+    const farmSummariesWithHens = await Promise.all(
+      processedFarmSummaries.map(async (farmSummary: any) => {
+        let remainingHens = 0;
+        try {
+          const { data: inventoryData, error: inventoryError } = await supabase
+            .schema(schema)
+            .from('inventory')
+            .select('quantity')
+            .eq('item_code', '001-001')
+            .eq('farm_id', farmSummary.farm_id)
+            //.single();
+          // console.log(inventoryData);
+          if (!inventoryError && inventoryData) {
+            if (Array.isArray(inventoryData) && inventoryData.length > 0) {
+              remainingHens = inventoryData.reduce(
+                (acc: number, item: any) => acc + Number(item.quantity), 0
+              );
+            }
+          }
+        } catch (error) {
+          console.log(`No inventory data found for farm ${farmSummary.farm_id}:`, error);
+          remainingHens = 0;
+        }
+       
+        return {
+          ...farmSummary,
+          remaining_hens: remainingHens
+        };
+      })
+    );
+
+    // Calculate overall totals
+    const overallSummary = farmSummariesWithHens.reduce((acc: any, farmSummary: any) => {
+      return {
+        total_prod_carton: (acc.total_prod_carton || 0) + farmSummary.total_prod_carton,
+        total_prod_tray: (acc.total_prod_tray || 0) + farmSummary.total_prod_tray,
+        total_out_carton: (acc.total_out_carton || 0) + farmSummary.total_out_carton,
+        total_out_tray: (acc.total_out_tray || 0) + farmSummary.total_out_tray,
+        total_death: (acc.total_death || 0) + farmSummary.total_death,
+        total_incom_feed: (acc.total_incom_feed || 0) + farmSummary.total_incom_feed,
+        total_intak_feed: (acc.total_intak_feed || 0) + farmSummary.total_intak_feed,
+        total_remain_feed: (acc.total_remain_feed || 0) + farmSummary.total_remain_feed,
+        total_remaining_hens: (acc.total_remaining_hens || 0) + farmSummary.remaining_hens,
+        days_count: (acc.days_count || 0) + farmSummary.days_count
+      };
+    }, {});
 
     // Format the report
     const report = data.map((item: any) => ({
       ...item,
       farm_name: item.farms?.farm_name
     }));
+
     return c.json({ 
       farmId: targetFarmId || 'all',
       period: {
         start_date: startDate,
         end_date: endDate
       },
-      newSummary,
+      farm_summaries: farmSummariesWithHens,
+      overall_summary: overallSummary,
       report: [...report]
     });
 
