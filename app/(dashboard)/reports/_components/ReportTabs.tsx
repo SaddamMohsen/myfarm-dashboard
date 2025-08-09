@@ -5,6 +5,7 @@ import MonthlyReportTable from './MonthlyReportTable';
 import MedicationVaccinationTable from './MedicationVaccinationTable';
 import { DatePicker } from '@/components/date-picker';
 import ProductionRepHeader from './ProductionRepHeader';
+import InventoryReportTable from './InventoryReportTable';
 
 interface ReportTabsProps {
   onTabChange: (tab: string, id: Number) => void;
@@ -31,7 +32,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
 
   const handleFarmChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const farmId = e.target.value;
-  
+  console.log("Selected Farm ID:", farmId);
     
     if (farmId === "") {
       setSelectedFarm(null);
@@ -56,9 +57,10 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
         );
       case "daily":
         return (
-          <div className="text-center py-8 text-gray-500">
-            تقرير المخزون - قيد التطوير
-          </div>
+          <InventoryReportTable
+      farmId={selectedFarm?.id || ""}
+      farmName={selectedFarm?.farm_name || "الكل"}
+    />
         );
       case "medication":
         return (

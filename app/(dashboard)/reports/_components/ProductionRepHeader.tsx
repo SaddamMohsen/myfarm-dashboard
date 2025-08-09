@@ -127,7 +127,7 @@ console.log(summaryData);
                     <span className="font-medium">المزرعة:</span> {summaryData.farm_name}
                   </div>
                   <div className="text-xs">
-                    <span className="font-small">الفترة:</span>من 
+                    <span className="font-xs">الفترة:</span>من 
                      {summaryData.period?.start_date} - الى {summaryData.period?.end_date}
                   </div>
                   <div className="text-sm">
@@ -139,17 +139,13 @@ console.log(summaryData);
             )}
             
             
-              {summaryData && summaryData.farm_summaries ? (
+              {summaryData && summaryData.farm_summaries && (
                 <div>
                 <FarmSummaryTable summaryData={summaryData.farm_summaries} />
                 </div>
-              ): (
-                <div className="flex justify-center items-center h-96">
-                  <div className="text-center text-gray-500">
-                    لا يوجد بيانات لعرضها
-                  </div>
-                </div>
-              )}
+              )
+             
+              }
           
   
           

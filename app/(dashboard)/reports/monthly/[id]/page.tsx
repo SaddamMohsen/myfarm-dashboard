@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { AmberDailyReport } from "@/components/tables/AmberDailyReport"
 import MonthlyReportTable from "../../_components/MonthlyReportTable"
+import Loader from "@/components/loader"
 
 interface MonthlyReport {
 //   prodDate: string
@@ -186,9 +187,7 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
   }, [reportData])
 
   const handleRowClick = async (row: MonthlyReport) => {
-   console.log('in row click');
     if (selectedRow &&( selectedRow.prod_date === row.prod_date)) {
-      console.log('inside if selectedRow')
       setSelectedRow(null)
       setDailyReportData([])
       return;
@@ -219,7 +218,7 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
+              <Loader  />
             </div>
           ) : (
             <div className="flex flex-col gap-4 items-center justify-center">

@@ -10,6 +10,7 @@ import {ErrorMessage} from "@/components/ErrorMessage";
 import MyFarmLogo from "@/components/myfarm-logo";
 import { useGetUserInfoQuery, useLoginUserMutation } from "@/lib/services/farms-api";
 import { set } from "date-fns";
+import Loader from "@/components/loader";
 
 export default function Login({
   searchParams,
@@ -127,9 +128,10 @@ export default function Login({
         />
        <SubmitButton
           formAction={signIn}
-          className="bg-gradient-to-b from-blue-500/20 to to-blue-700/40
+          className="bg-gradient-to-b from-blue-500 to to-blue-700/40
  rounded-md px-4 py-2 font-semibold antialiased text-foreground mb-2"
           pendingText=" جاري تسجيل الدخول....."
+          icon={<Loader/>}
           >
           دخــــــــول
         </SubmitButton>

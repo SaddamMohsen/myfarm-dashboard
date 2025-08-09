@@ -16,26 +16,26 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
   const [getMonthlyReport, isLoading] = useGetMonthlyReportMutation();
   const [getAmberReport] = useGetAmberReportMutation();
 
-  const fetchReport = async (selectedDate: Date, id: Number) => {
-    try {
-      console.log(`in page report getMonthlyRepo:${id}--${selectedDate}`);
-      const result = await getMonthlyReport({
-        farmId: id,
-        date: selectedDate.toISOString().split('T')[0],
-      }).unwrap();
-      console.log(`result in report page`);
-      console.log(result);
-      if (result?.report) {
-        setReportData(result.report);
-      }
-    } catch (error) {
-      console.error("خطأ في جلب التقرير:", error);
-    }
-  };
+  // const fetchReport = async (selectedDate: Date, id: Number) => {
+  //   try {
+  //     console.log(`in page report getMonthlyRepo:${id}--${selectedDate}`);
+  //     const result = await getMonthlyReport({
+  //       farmId: id,
+  //       date: selectedDate.toISOString().split('T')[0],
+  //     }).unwrap();
+  //     console.log(`result in report page`);
+  //     console.log(result);
+  //     if (result?.report) {
+  //       setReportData(result.report);
+  //     }
+  //   } catch (error) {
+  //     console.error("خطأ في جلب التقرير:", error);
+  //   }
+  // };
 
   useEffect(() => {
     if (selectedFarmId) {
-      fetchReport(date, Number(selectedFarmId));
+      //fetchReport(date, Number(selectedFarmId));
     }
   }, [date, selectedFarmId]);
 
@@ -54,7 +54,7 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
   const handleTabChange = (tab: string, id: Number) => {
     setReportType(tab);
     if (tab === "monthly" && id) {
-      fetchReport(date, id);
+      //fetchReport(date, id);
     }
   };
 

@@ -1,19 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/utils/supabase/middleware";
-//import { createClient } from "./utils/supabase/server";
 import { cookies } from "next/headers";
+
 const protectedRoutes = ["/farms",'/supervisors','/main','/reports','/profile'];
+
 export async function middleware(request: NextRequest) {
   const cookieStore = cookies();
   const cookie = cookieStore.get("sb-flkmhzdiztimgzoshqpx-auth-token");
   //console.log("myCookie", cookie?.value);
-  const nextUrl = request.nextUrl;
-  // const supabase = createClient();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
+  const nextUrl = request.nextUrl
+  const nextUrlhref = request.nextUrl.pathname;
+ // console.log('next url middleware',nextUrlhref)
 
-  if (protectedRoutes.includes(nextUrl.pathname) && !cookie) {
+  if (protectedRoutes.includes(nextUrlhref)&&!cookie) {
+    console.log('protected',nextUrlhref)
     let callbackUrl = nextUrl.pathname;
 
     if (nextUrl.search) {

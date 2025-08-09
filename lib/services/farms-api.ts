@@ -71,14 +71,16 @@ export const farmsApi = createApi({
     }),
     addNewFarm: builder.mutation<Farms | any, { newFarm: FarmPostRequsetType }>(
       {
-        //query:({...body})=>({url:'farm',method:"POST",body:body})
+       // @ts-expect-error
         async queryFn(newFarm, _queryApi, _extraOptions, _baseQuery) {
           try {
             const data = newFarm.newFarm;
-            console.log(newFarm);
+           
             const res = await client.api.farms.$post({ json: data });
             const response = await res.json();
-            console.log(response);
+            if ("error" in response) {
+              return { error: response.error };
+            }
             // Return the result in an object with a `data` field
             return { data: response };
           } catch (error: any) {
@@ -121,7 +123,7 @@ export const farmsApi = createApi({
           const res = await client.api.supervisors.free_sup.$get();
           //@ts-ignore
           const { supervisors } = await res.json();
-          console.log(supervisors);
+       
           return { data: supervisors };
         } catch (error: any) {
           console.log(error);
@@ -256,7 +258,7 @@ export const farmsApi = createApi({
     getMonthlyReport: builder.mutation<any, { farmId: any; date: string }>({
       async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
         try {
-          console.log(`id in api get monthlyReport ${params.farmId}:${params.date}`)
+       
           const res = await client.api.reports.monthly[":id"].$get({
             param: {
               id: params.farmId.toString(),
@@ -266,7 +268,7 @@ export const farmsApi = createApi({
             },
           });
           const data = await res.json();
-          console.log(`data from getMonthlyRep ${data}`)
+         
           return { data };
         } catch (error: any) {
           return {
@@ -313,7 +315,7 @@ export const farmsApi = createApi({
             },
           });
           const data = await res.json();
-          console.log("data in login api", data);
+        
           return { data };
         } catch (error: any) {
           return {
@@ -436,8 +438,7 @@ export const farmsApi = createApi({
     }>({
       async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
         try {
-          console.log(` in api ${params.start_date}:${params.end_date}`)
-          console.log(typeof params.start_date)
+          
         
           const url =
            // @ts-expect-error
@@ -451,27 +452,11 @@ export const farmsApi = createApi({
                 end_date: params.end_date,
               }
             })
-            // :  client.api.reports.production.$get({
-            //   query:{
-            //     start_date: params.start_date,
-            //     end_date: params.end_date,
-            //   }
-            // });
-          
+           
           const res = await url
-          // fetch(url, {
-          //   method: 'GET',
-          //   headers: {
-          //     'Content-Type': 'application/json',
-          //   },
-          //   body: JSON.stringify({
-          //     start_date: params.start_date,
-          //     end_date: params.end_date,
-          //     farm_id: params.farmId,
-          //   }),
-          // });
+        
           const data = await res.json();
-          console.log(data)
+        
           return  {data} ;
         } catch (error: any) {
           return {
@@ -484,6 +469,67 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getInventoryReport: builder.mutation<
+  any,
+  {
+    farmId?: string;
+    item_code?: string;
+    amber_id?: number;
+  }
+>({
+  async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+    try {
+     
+         // @ts-expect-error
+      const res = await client.api.reports.inventory[":id"].$get({
+        param: {
+          id: params.farmId || "",
+        },
+        query: {
+          // omit when undefined
+          ...(params.item_code != null ? { item_code: params.item_code } : {}),
+          ...(params.amber_id != null
+            ? { amber_id: String(params.amber_id) }
+            : {}),
+        },
+      });
+      const data = await res.json();
+      return { data };
+    } catch (error: any) {
+      return {
+        error: {
+          status: 500,
+          statusText: `Internal Server Error ${error}`,
+          data: error,
+        },
+      };
+    }
+  },
+}),
+fetchItems: builder.query<any, void>({
+   //// @ts-expect-error
+  async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
+    try {
+      const res = await client.api.reports.items.$get();
+      const data = await res.json();
+     
+      if ("error" in data) {
+        return { error: data.error };
+      }
+     
+      return {data: data };
+    } catch (error: any) {
+      return {
+        error: {
+          status: 500,
+          statusText: `Internal Server Error ${error}`,
+          data: error,
+        },
+      };
+    }
+  },
+    }),
+
   }),
 });
 
@@ -506,4 +552,6 @@ export const {
   useGetMedicationReportMutation,
   useGetVaccinationReportMutation,
   useGetProductionReportMutation,
+  useGetInventoryReportMutation,
+  useFetchItemsQuery,
 } = farmsApi;

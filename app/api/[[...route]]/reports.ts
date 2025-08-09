@@ -451,6 +451,149 @@ console.log('daily report',report);
     console.error("خطأ في جلب تقرير الإنتاج:", error);
     return c.json({ error: error.message }, 400);
   }
+}).get("/inventory/:id?", zValidator("query",
+  z.object({
+    item_code: z.string().optional(),
+    amber_id: z.string().optional(),
+    farm_id: z.string().optional(),
+  }),
+  (result, c) => {
+    console.log(result.data);
+    if (!result.success) {
+      console.log("invalid values", result.error);
+      return c.text("Invalid Values!", 400);
+    }
+  }
+), async (c) => {
+  try {
+    const { user } = await getUser(c);
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c);
+
+    const pathFarmId = c.req.param('id');
+    const queryFarmId = c.req.query('farm_id');
+    const itemCode = c.req.query('item_code') || undefined;
+    const amberIdStr = c.req.query('amber_id') || undefined;
+
+    const targetFarmId = queryFarmId || pathFarmId;
+
+    let query = supabase
+      .schema(schema)
+      .from('inventory')
+      .select(`
+        *,
+        
+        items!inner (
+          item_name
+        ),
+        farms!inner (
+          farm_name
+        )
+      `)
+      .order('updated_at', { ascending: false });
+
+    if (targetFarmId) {
+      query = query.eq('farm_id', parseInt(targetFarmId));
+    }
+    if (itemCode) {
+      query = query.eq('item_code', itemCode);
+    }
+    if (amberIdStr) {
+      const amberId = parseInt(amberIdStr);
+      if (!Number.isNaN(amberId)) {
+        query = query.eq('amber_id', amberId);
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Per-farm aggregation by item_name
+    const farmSummariesMap: Record<string, any> = {};
+    const overallItemsMap: Record<
+      string,
+      { item_name: string; total_quantity: number; total_small_quantity: number; records_count: number }
+    > = {};
+
+    for (const item of (data || [])) {
+      const fId = item.farm_id;
+      const fName = item.farms?.farm_name || 'Unknown Farm';
+      const name = (item.items && item.items.item_name) ? item.items.item_name : item.item_code;
+
+      if (!farmSummariesMap[fId]) {
+        farmSummariesMap[fId] = {
+          farm_id: fId,
+          farm_name: fName,
+          items: {} as Record<string, { item_name: string; total_quantity: number; total_small_quantity: number; records_count: number }>,
+        };
+      }
+      if (!farmSummariesMap[fId].items[name]) {
+        farmSummariesMap[fId].items[name] = { item_name: name, total_quantity: 0, total_small_quantity: 0, records_count: 0 };
+      }
+      farmSummariesMap[fId].items[name].total_quantity += Number(item.quantity || 0);
+      farmSummariesMap[fId].items[name].total_small_quantity += Number(item.small_quantity || 0);
+      farmSummariesMap[fId].items[name].records_count += 1;
+
+      if (!overallItemsMap[name]) {
+        overallItemsMap[name] = { item_name: name, total_quantity: 0, total_small_quantity: 0, records_count: 0 };
+      }
+      overallItemsMap[name].total_quantity += Number(item.quantity || 0);
+      overallItemsMap[name].total_small_quantity += Number(item.small_quantity || 0);
+      overallItemsMap[name].records_count += 1;
+    }
+
+    const farm_summaries = Object.values(farmSummariesMap).map((s: any) => ({
+      farm_id: s.farm_id,
+      farm_name: s.farm_name,
+      items: Object.values(s.items),
+    }));
+
+    const overall_summary = {
+      items: Object.values(overallItemsMap),
+    };
+
+    const report = (data || []).map((item: any) => ({
+      ...item,
+      farm_name: item.farms?.farm_name,
+    }));
+
+    return c.json({
+      farmId: targetFarmId || 'all',
+      filters: {
+        item_code: itemCode ?? null,
+        amber_id: amberIdStr ? parseInt(amberIdStr) : null,
+      },
+      farm_summaries,
+      overall_summary,
+      report,
+    });
+  } catch (error: any) {
+    console.error("خطأ في جلب تقرير المخزون:", error);
+    return c.json({ error: error.message }, 400);
+  }
+}).get("/items", async (c) => {
+  try {
+    const { user } = await getUser(c);
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c);
+
+    const {data, error} = await supabase
+      .schema(schema)
+      .from('items')
+      .select(`
+        *
+      `)
+      if (error) throw error;
+      
+      const report = (data || []).map((item: any) => ({
+        ...item}));
+       
+      return c.json(report)
+      
+  }catch (error: any) {
+    console.error("خطأ في جلب بيانات الاصناف:", error);
+    return c.json({ error: error.message }, 400);
+  }
 });
 
 export default app;
