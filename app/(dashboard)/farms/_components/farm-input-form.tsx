@@ -84,7 +84,7 @@ export default function FarmInputForm({open,onClose}:{open:boolean,onClose:()=>v
   };
 
   const onSubmit = async (values: Farms) => {
-    console.log("in submit handler",typeof (values.farm_start_date));
+   // console.log("in submit handler",typeof (values.farm_start_date));
     //const newValues={...values,farm_start_date:new Date(values?.farm_start_date??'')}
     try {
       addFarm({newFarm:values}).unwrap().then((payload)=>{

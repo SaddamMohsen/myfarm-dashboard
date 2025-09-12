@@ -7,6 +7,7 @@ import supervisors from "./supervisors";
 import productions from "./productions";
 import auth from "./login";
 import reports from "./reports";
+import flocks from "./flocks";
 import { getCookie,setCookie } from "hono/cookie";
 import { SuperVisor } from "@/constants/types";
 import { createMiddleware } from "hono/factory";
@@ -51,7 +52,8 @@ const routes = app.route("/farms", farms)
  .route('supervisors',supervisors)
  .route('productions',productions)
  .route('reports',reports)
- .route('auth',auth);
+ .route('auth',auth)
+ .route('flocks',flocks);
 
 
 export const GET = handle(app);

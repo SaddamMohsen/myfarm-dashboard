@@ -142,7 +142,7 @@ let supervisorsArr=data?.map((item)=>item.u_id)
               full_name: user.full_name,
               role: 'supervisor',
               schema: schema,
-              user_schema: schema
+              user_schema: `${schema}_users`
             }
           }
         })
@@ -151,7 +151,8 @@ let supervisorsArr=data?.map((item)=>item.u_id)
           console.log('authError', authError);
           throw authError;
         }
-
+           // console.log('authData', authData);
+            //console.log('user', user);
         // إضافة بيانات المشرف في جدول المشرفين
         const { error: dbError } = await supabase
           .schema(schema)
@@ -165,7 +166,9 @@ let supervisorsArr=data?.map((item)=>item.u_id)
 
         if (dbError) {
           console.log('dbError', dbError);
-          throw dbError;
+          return c.json({error:dbError.details},400);
+          
+
         }
 
         return c.json({ success: true, user: authData.user });

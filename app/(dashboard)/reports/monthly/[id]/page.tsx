@@ -27,6 +27,12 @@ import { Button } from "@/components/ui/button"
 import { AmberDailyReport } from "@/components/tables/AmberDailyReport"
 import MonthlyReportTable from "../../_components/MonthlyReportTable"
 import Loader from "@/components/loader"
+import { DateRangePicker } from "@/components/date-range-picker"
+import { DateRange } from "@/constants/types"
+//import { DateRange } from "react-day-picker"
+
+ 
+
 
 interface MonthlyReport {
 //   prodDate: string
@@ -166,6 +172,11 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
     }
   }
 
+  const [fdate, setRangeDate] = useState<DateRange | undefined>({
+    from: new Date("01-2-2024"),
+    to: new Date(),
+});
+
   useEffect(() => {
     fetchReport(date)
   }, [date])
@@ -213,7 +224,21 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
       <Card className="bg-white/90">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>التقرير الشهري - {reportData[0]?.farm_name}</CardTitle>
-          <DatePicker date={date} onSelect={(newDate) => newDate && setDate(newDate)} />
+          <DateRangePicker
+                                onUpdate={(values) => {
+                                    setRangeDate(values.range);
+                                    setDate(values.range?.from ?? new Date());
+                                    // if (values.range?.to !== undefined) {
+                                    //     table.getColumn("start")?.setFilterValue(values.range);
+                                    // }
+                                }}
+                                initialDateFrom={fdate?.from}
+                                initialDateTo={fdate?.to ?? ""}
+                                align="start"
+                                locale="en-US"
+                                showCompare={false}
+                            />
+          {/* <DatePicker date={date} onSelect={(newDate) => newDate && setDate(newDate)} /> */}
         </CardHeader>
         <CardContent>
           {isLoading ? (

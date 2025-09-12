@@ -46,7 +46,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
   const [getInventoryReport, { data, isLoading }] = useGetInventoryReportMutation();
 
   const handleGenerateReport = async () => {
-    console.log(farmId, itemCode, amberId);
+    
     await getInventoryReport({
       farmId: farmId || undefined,
       item_code: itemCode || undefined,
@@ -130,8 +130,8 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
                     <TableRow>
                       <TableHead className="text-right">الصنف</TableHead>
                       <TableHead className="text-right">الكمية</TableHead>
-                      <TableHead className="text-right">الكمية الصغيرة</TableHead>
-                      <TableHead className="text-right">عدد السجلات</TableHead>
+                     {/* // <TableHead className="text-right">الكمية الصغيرة</TableHead>
+                      <TableHead className="text-right">عدد السجلات</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -139,8 +139,8 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
                       <TableRow key={`${item.item_name}-${idx}`}>
                         <TableCell className="text-right">{item.item_name}</TableCell>
                         <TableCell className="text-right">{item.total_quantity}</TableCell>
-                        <TableCell className="text-right">{item.total_small_quantity}</TableCell>
-                        <TableCell className="text-right">{item.records_count}</TableCell>
+                       {/* // <TableCell className="text-right">{item.total_small_quantity}</TableCell>
+                        <TableCell className="text-right">{item.records_count}</TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -152,29 +152,42 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
           {/* Table: Per farm + item */}
           {farmSummaries.length > 0 ? (
             <div className="overflow-x-auto">
+              <></>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">المزرعة</TableHead>
-                    <TableHead className="text-right">الصنف</TableHead>
-                    <TableHead className="text-right">الكمية</TableHead>
-                    <TableHead className="text-right">الكمية الصغيرة</TableHead>
-                    <TableHead className="text-right">عدد السجلات</TableHead>
+                
+               
+                  {farmSummaries.map((farm) =>
+                  <TableBody>
+                  <TableRow key={`${farm.farm_name}`}>
+                  <TableHead className="text-center font-bold text-black-100 bg-black-900 w-full" colSpan={5}>
+                  {farm.farm_name}</TableHead>
+                    {/* <TableCell className="text-center font-bold" colSpan={5}>
+                      {farm.farm_name}
+                    </TableCell> */}
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {farmSummaries.flatMap((farm) =>
-                    farm.items.map((it, idx) => (
-                      <TableRow key={`${farm.farm_id}-${it.item_name}-${idx}`}>
-                        <TableCell className="text-right">{farm.farm_name}</TableCell>
+                  
+                  <TableRow >
+                    {/* <TableHead className="text-right">المزرعة</TableHead> */}
+                    <TableHead className="text-right" >الصنف</TableHead>
+                    <TableHead className="text-right" colSpan={3}>الكمية</TableHead>
+                    {/* <TableHead className="text-right">الكمية الصغيرة</TableHead>
+                    <TableHead className="text-right">عدد السجلات</TableHead> */}
+                  </TableRow>
+              
+               
+                   { farm.items.map((it) => (
+                      <TableRow key={`${it.item_name}`}>
+                        
                         <TableCell className="text-right">{it.item_name}</TableCell>
                         <TableCell className="text-right">{it.total_quantity}</TableCell>
-                        <TableCell className="text-right">{it.total_small_quantity}</TableCell>
-                        <TableCell className="text-right">{it.records_count}</TableCell>
+                        {/* <TableCell className="text-right">{it.total_small_quantity}</TableCell>
+                        <TableCell className="text-right">{it.records_count}</TableCell> */}
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
+                    ))}
+                  
+                  </TableBody>)}
+                  
+              
               </Table>
             </div>
           ) : (

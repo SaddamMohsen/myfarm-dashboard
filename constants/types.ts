@@ -73,3 +73,30 @@ export interface ProductionSummary{
   daysCount:Number;
   noOfFlock:Number;
 }
+
+// Flock Batch Schema and Types
+export const flockBatchSchema = z.object({
+  id: z.optional(z.number()),
+  created_at: z.optional(z.string()),
+  farm_id: z.number({
+    required_error: "Farm ID is required",
+  }),
+  amber_id: z.number({
+    required_error: "Amber ID is required",
+  }),
+  quantity: z.number().int().min(1, "Quantity must be at least 1").default(0),
+  age: z.number().int().min(0, "Age must be 0 or greater").default(1),
+  date_of_acquisition: z.coerce.date({
+    required_error: "Date of acquisition is required",
+  }),
+  details: z.string().optional(),
+  invoice_no: z.number().int().optional(),
+  batch_no: z.number().int().min(1, "Batch number must be at least 1").default(0),
+});
+
+export type FlockBatch = z.infer<typeof flockBatchSchema>;
+
+export interface DateRange {
+  from: Date|undefined,
+  to: Date|undefined,
+};

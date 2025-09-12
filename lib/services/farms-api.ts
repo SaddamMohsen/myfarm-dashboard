@@ -3,7 +3,7 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { Farms, SuperVisor } from "@/constants/types";
+import { Farms, SuperVisor, FlockBatch } from "@/constants/types";
 import { client } from "../hono-client";
 import { z } from "zod";
 import { InferRequestType, InferResponseType } from "hono";
@@ -18,9 +18,12 @@ type SuperVisorResponse = InferResponseType<typeof client.api.supervisors.$get>;
 type FarmPostRequsetType = InferRequestType<
   typeof client.api.farms.$post
 >["json"];
+type FlockPostRequestType = InferRequestType<
+  typeof client.api.flocks.$post
+>["json"];
 export const farmsApi = createApi({
   reducerPath: "farmsApi",
-  tagTypes: ["Farms"],
+  tagTypes: ["Farms", "FlockBatches"],
   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
   endpoints: (builder) => ({
     fetchAllFarms: builder.query<Farms[], void>({
@@ -305,74 +308,6 @@ export const farmsApi = createApi({
         }
       },
     }),
-    loginUser: builder.mutation<any, { email: string; password: string }>({
-      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
-        try {
-          const res = await client.api.auth["sign-in"].$post({
-            json: {
-              email: params.email,
-              password: params.password,
-            },
-          });
-          const data = await res.json();
-        
-          return { data };
-        } catch (error: any) {
-          return {
-            error: {
-              status: 500,
-              statusText: `Internal Server Error ${error}`,
-              data: error,
-            },
-          };
-        }
-      },
-    }),
-    getUserInfo: builder.query<any, void>({
-      async queryFn(_arg, _api, _extraOptions, _baseQuery) {
-        try {
-          const res = await client.api.auth["user"].$get();
-          const data = await res.json();
-
-          return { data };
-        } catch (error: any) {
-          return {
-            error: {
-              status: 500,
-              statusText: `Internal Server Error ${error}`,
-              data: error,
-            },
-          };
-        }
-      },
-    }),
-    fetchOneSupervisor: builder.mutation<SuperVisor, { id: string }>({
-       // @ts-expect-error
-      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
-        try {
-          const res = await client.api.supervisors[":id"].$get({
-            param: {
-              id: params.id,
-            },
-          });
-          const response = await res.json();
-          if ("error" in response) 
-            return {error:response.error};
-            //throw new Error(response.error);
-          
-          return { data: response.supervisor };
-        } catch (error: any) {
-          console.log(error);
-          return {
-            error: {
-              status: 500,
-              statusText: `خطأ في جلب بيانات المشرف ${error}`,
-              data: error,
-            },
-          };
-        }
-      },
-    }),
     getMedicationReport: builder.mutation<any, { 
       farmId: string; 
       start_date: string; 
@@ -494,6 +429,7 @@ export const farmsApi = createApi({
         },
       });
       const data = await res.json();
+      console.log("data in api inventory",data);
       return { data };
     } catch (error: any) {
       return {
@@ -506,6 +442,75 @@ export const farmsApi = createApi({
     }
   },
 }),
+    loginUser: builder.mutation<any, { email: string; password: string }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.auth["sign-in"].$post({
+            json: {
+              email: params.email,
+              password: params.password,
+            },
+          });
+          const data = await res.json();
+        
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+    getUserInfo: builder.query<any, void>({
+      async queryFn(_arg, _api, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.auth["user"].$get();
+          const data = await res.json();
+
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+    fetchOneSupervisor: builder.mutation<SuperVisor, { id: string }>({
+       // @ts-expect-error
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.supervisors[":id"].$get({
+            param: {
+              id: params.id,
+            },
+          });
+          const response = await res.json();
+          if ("error" in response) 
+            return {error:response.error};
+            //throw new Error(response.error);
+          
+          return { data: response.supervisor };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `خطأ في جلب بيانات المشرف ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+  
 fetchItems: builder.query<any, void>({
    //// @ts-expect-error
   async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
@@ -528,6 +533,161 @@ fetchItems: builder.query<any, void>({
       };
     }
   },
+    }),
+
+    // Flock Management Endpoints
+    fetchAllFlockBatches: builder.query<FlockBatch[], void>({
+      async queryFn(_arg, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.flocks.$get();
+          //@ts-ignore
+          const { flocks } = await res.json();
+          return { data: flocks };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+      providesTags: ["FlockBatches"],
+    }),
+
+    fetchFlockBatchById: builder.mutation<FlockBatch, { id: number }>({
+      async queryFn(id, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.flocks.$get({
+            query: {
+              id: id.id,
+            },
+          });
+
+          //@ts-ignore
+          const { flock } = await res.json();
+          return { data: flock };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
+
+    fetchFlockBatchesByFarm: builder.query<FlockBatch[], { farmId: number }>({
+      async queryFn(farmId, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.flocks.farm[":farmId"].$get({
+            param: {
+              farmId: farmId.farmId.toString(),
+            },
+          });
+
+          //@ts-ignore
+          const { flocks } = await res.json();
+          return { data: flocks };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+      providesTags: ["FlockBatches"],
+    }),
+
+    addNewFlockBatch: builder.mutation<any, { newFlock: FlockPostRequestType }>({
+      // @ts-expect-error
+      async queryFn(newFlock, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const data = newFlock.newFlock;
+          const res = await client.api.flocks.$post({ json: data });
+          const response = await res.json();
+          if ("error" in response) {
+            return { error: response.error };
+          }
+          return { data: response };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["FlockBatches"],
+    }),
+
+    updateFlockBatch: builder.mutation<any, { id: number; updates: Partial<FlockPostRequestType> }>({
+      // @ts-expect-error
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.flocks[":id"].$put({
+            param: {
+              id: params.id.toString(),
+            },
+            json: params.updates,
+          });
+          const response = await res.json();
+          if ("error" in response) {
+            return { error: response.error };
+          }
+          return { data: response };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["FlockBatches"],
+    }),
+
+    deleteFlockBatch: builder.mutation<any, { id: number }>({
+      // @ts-expect-error
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.flocks[":id"].$delete({
+            param: {
+              id: params.id.toString(),
+            },
+          });
+          const response = await res.json();
+          if ("error" in response) {
+            return { error: response.error };
+          }
+          return { data: response };
+        } catch (error: any) {
+          console.log(error);
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["FlockBatches"],
     }),
 
   }),
@@ -554,4 +714,11 @@ export const {
   useGetProductionReportMutation,
   useGetInventoryReportMutation,
   useFetchItemsQuery,
+  // Flock Management Hooks
+  useFetchAllFlockBatchesQuery,
+  useFetchFlockBatchByIdMutation,
+  useFetchFlockBatchesByFarmQuery,
+  useAddNewFlockBatchMutation,
+  useUpdateFlockBatchMutation,
+  useDeleteFlockBatchMutation,
 } = farmsApi;

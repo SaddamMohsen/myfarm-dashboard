@@ -11,6 +11,8 @@ import { DatePicker } from "@/components/date-picker";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import Loader from "@/components/loader";
+import { DateRange } from "@/constants/types";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 interface MedicationVaccinationTableProps {
   farmId: string;
@@ -30,25 +32,29 @@ interface ReportItem {
 
 export default function MedicationVaccinationTable({ farmId, farmName }
     : MedicationVaccinationTableProps) {
-  const [startDate, setStartDate] = useState<Date>(() => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - 1);
-    return date;
-  });
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  // const [startDate, setStartDate] = useState<Date>(() => {
+  //   const date = new Date();
+  //   date.setMonth(date.getMonth() - 1);
+  //   return date;
+  // });
+  // const [endDate, setEndDate] = useState<Date>(new Date());
+  const [fdate, setRangeDate] = useState<DateRange | undefined>({
+    from: new Date("01-2-2024"),
+    to: new Date(),
+});
   const [reportType, setReportType] = useState<'medication' | 'vaccination'>('medication');
 
   const [getMedicationReport, { data: medicationData, isLoading: medicationLoading }] = useGetMedicationReportMutation();
   const [getVaccinationReport, { data: vaccinationData, isLoading: vaccinationLoading }] = useGetVaccinationReportMutation();
 
   const handleGenerateReport = async () => {
-    if (!startDate || !endDate) {
+    if (!fdate?.from || !fdate?.to) {
       alert("يرجى تحديد تاريخ البداية والنهاية");
       return;
     }
 
-    const startDateStr = format(startDate, 'yyyy/MM/dd');
-    const endDateStr = format(endDate, 'yyyy/MM/dd');
+    const startDateStr = format(fdate?.from, 'yyyy/MM/dd');
+    const endDateStr = format(fdate?.to, 'yyyy/MM/dd');
 
     if (reportType === 'medication') {
       await getMedicationReport({
@@ -98,25 +104,39 @@ export default function MedicationVaccinationTable({ farmId, farmName }
 
             <div className="flex flex-col space-y-2">
               <Label>تاريخ البداية</Label>
-              <DatePicker
+              {/* <DatePicker
                 date={startDate}
                 onSelect={(newDate) => newDate && setStartDate(newDate)}
                 // placeholder prop removed because it does not exist on DatePickerProps
-              />
+              /> */}
+               <DateRangePicker
+                                onUpdate={(values) => {
+                                    setRangeDate(values.range);
+                                    //setDate(values.range?.from ?? new Date());
+                                    // if (values.range?.to !== undefined) {
+                                    //     table.getColumn("start")?.setFilterValue(values.range);
+                                    // }
+                                }}
+                                initialDateFrom={fdate?.from}
+                                initialDateTo={fdate?.to ?? ""}
+                                align="start"
+                                locale="en-US"
+                                showCompare={false}
+                            />
             </div>
 
-            <div className="flex flex-col space-y-2">
+            {/* <div className="flex flex-col space-y-2">
               <Label>تاريخ النهاية</Label>
               <DatePicker
                 date={endDate}
                 onSelect={(newDate) => newDate && setEndDate(newDate)}
                
               />
-            </div>
+            </div> */}
             <div className="flex flex-col space-y-2 pt-5">
             <Button 
               onClick={handleGenerateReport}
-              disabled={!startDate || !endDate || isLoading}
+              disabled={!fdate?.from || !fdate?.to || isLoading}
               className="bg-blue-600 hover:bg-blue-700 "
             >
               {isLoading ? <Loader/>: "عرض التقرير"}
