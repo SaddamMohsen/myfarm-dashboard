@@ -110,6 +110,8 @@ export default function MedicationVaccinationTable({ farmId, farmName }
                 // placeholder prop removed because it does not exist on DatePickerProps
               /> */}
                <DateRangePicker
+                             
+                               
                                 onUpdate={(values) => {
                                     setRangeDate(values.range);
                                     //setDate(values.range?.from ?? new Date());
@@ -120,7 +122,7 @@ export default function MedicationVaccinationTable({ farmId, farmName }
                                 initialDateFrom={fdate?.from}
                                 initialDateTo={fdate?.to ?? ""}
                                 align="start"
-                                locale="en-US"
+                                locale="ar-US"
                                 showCompare={false}
                             />
             </div>

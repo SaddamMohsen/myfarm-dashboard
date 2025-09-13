@@ -29,6 +29,7 @@ import MonthlyReportTable from "../../_components/MonthlyReportTable"
 import Loader from "@/components/loader"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { DateRange } from "@/constants/types"
+import { Calendar } from "@/components/ui/calendar"
 //import { DateRange } from "react-day-picker"
 
  
@@ -59,7 +60,7 @@ prod_date: string
 }
 
 export default function MonthlyReportPage({ params }: { params: { id: string } }) {
-  const [date, setDate] = useState<Date>(new Date())
+  const [date, setDate] = React.useState<Date | undefined>(new Date())
   const [reportData, setReportData] = useState<MonthlyReport[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [getMonthlyReport, { isLoading }] = useGetMonthlyReportMutation()
@@ -157,11 +158,11 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
     },
   })
 
-  const fetchReport = async (selectedDate: Date) => {
+  const fetchReport = async (selectedDate: Date|undefined) => {
     try {
       const result = await getMonthlyReport({
         farmId: params.id,
-        date: format(selectedDate, 'yyyy-MM-dd')
+        date: format(selectedDate??new Date(), 'yyyy-MM-dd')
       }).unwrap()
 
       if (result?.report) {
@@ -224,20 +225,15 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
       <Card className="bg-white/90">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>التقرير الشهري - {reportData[0]?.farm_name}</CardTitle>
-          <DateRangePicker
-                                onUpdate={(values) => {
-                                    setRangeDate(values.range);
-                                    setDate(values.range?.from ?? new Date());
-                                    // if (values.range?.to !== undefined) {
-                                    //     table.getColumn("start")?.setFilterValue(values.range);
-                                    // }
-                                }}
-                                initialDateFrom={fdate?.from}
-                                initialDateTo={fdate?.to ?? ""}
-                                align="start"
-                                locale="en-US"
-                                showCompare={false}
-                            />
+          <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(newDate) => newDate && setDate(newDate)}
+          onMonthChange={(newDate) => newDate && setDate(newDate)}
+          locale={ar}
+          captionLayout="dropdown-months"
+          className="[&_.rdp-day]:hidden [&_.rdp-week]:hidden [&_.rdp-weekdays]:hidden"
+          />
           {/* <DatePicker date={date} onSelect={(newDate) => newDate && setDate(newDate)} /> */}
         </CardHeader>
         <CardContent>

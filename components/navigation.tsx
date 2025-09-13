@@ -17,6 +17,10 @@ const routes = [
     label: "المزارع",
   },
   {
+    href: "/flocks",
+    label: "القطعان",
+  },
+  {
     href: "/supervisors",
     label: "المشرفين",
   },

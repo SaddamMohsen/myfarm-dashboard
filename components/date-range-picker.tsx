@@ -15,6 +15,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronUpIcon, ChevronDownIcon, CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DayPicker } from "react-day-picker";
 
 export interface DateRangePickerProps {
     /** Click handler for applying the updates from DateRangePicker. */
@@ -55,15 +56,15 @@ interface Preset {
 
 // Define presets
 const PRESETS: Preset[] = [
-    { name: "today", label: "Today" },
-    { name: "yesterday", label: "Yesterday" },
-    { name: "last7", label: "Last 7 days" },
-    { name: "last14", label: "Last 14 days" },
-    { name: "last30", label: "Last 30 days" },
-    { name: "thisWeek", label: "This Week" },
-    { name: "lastWeek", label: "Last Week" },
-    { name: "thisMonth", label: "This Month" },
-    { name: "lastMonth", label: "Last Month" },
+    { name: "today", label: "اليوم" },
+    { name: "yesterday", label: "الامس" },
+    { name: "last7", label: "اخر اسبوع" },
+    { name: "last14", label: "اخر اسبوعين" },
+    { name: "last30", label: "خلال 30 يوم" },
+    { name: "thisWeek", label: "هذا الاسبوع" },
+    { name: "lastWeek", label: "الاسبوع الماضي" },
+    { name: "thisMonth", label: "هذا الشهر" },
+    { name: "lastMonth", label: "الشهر الماضي" },
 ];
 
 /** The DateRangePicker component allows a user to select a range of dates */
@@ -76,7 +77,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     initialCompareTo,
     onUpdate,
     align = "end",
-    locale = "en-US",
+    locale = "ar-US",
     showCompare = true,
 }): JSX.Element => {
     const [isOpen, setIsOpen] = useState(false);
@@ -485,7 +486,9 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                             )}
                             <div>
                                 <Calendar
+                                animate
                                     mode="range"
+                                   
                                     onSelect={(
                                         value: { from?: Date; to?: Date } | undefined,
                                     ) => {
