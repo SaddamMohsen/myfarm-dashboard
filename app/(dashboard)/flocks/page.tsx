@@ -48,15 +48,15 @@ export default function FlocksPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6" dir='rtl'>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">إدارة القطعان</h1>
         <p className="text-gray-600">إدارة وعرض جميع قطعان الدواجن في المزارع</p>
       </div>
 
-      <Card>
+      <Card dir='rtl'>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center text-xl font-bold">
             <div>
               <CardTitle>قائمة القطعان</CardTitle>
               <CardDescription>

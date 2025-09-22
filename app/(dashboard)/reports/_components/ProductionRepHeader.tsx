@@ -120,7 +120,7 @@ console.log(summaryData);
             {/* Report Summary */}
             {summaryData && (
              
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-200 p-4 rounded-lg">
                 <h3 className="font-semibold text-right mb-2">ملخص التقرير</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
                   <div>

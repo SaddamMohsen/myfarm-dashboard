@@ -53,7 +53,7 @@ export const FarmSummaryTable: React.FC<FarmSummaryTableProps> = ({ summaryData 
         header: ({ column }) => {
             return (
               <Button
-              className="border-1 border-slate-500 text-base antialiased text-center font-semibold text-black"
+              className="border border-slate-500 text-base antialiased text-center font-semibold text-black"
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
               >
@@ -139,7 +139,7 @@ export const FarmSummaryTable: React.FC<FarmSummaryTableProps> = ({ summaryData 
       // },
     })
     return(
-   <Table dir='rtl' className='bg-white'>
+   <Table dir='rtl' className=''>
          <TableHeader>
            {summaryTable.getHeaderGroups().map((headerGroup: { id: React.Key | null | undefined; headers: any[]; }) => (
              <TableRow key={headerGroup.id} className="bg-gray-500 hover:bg-black-600">

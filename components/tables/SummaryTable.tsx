@@ -32,12 +32,12 @@ interface SummaryTableProps {
 
 export function SummaryTable({ data, isLoading, onFarmSelect }: SummaryTableProps) {
   return (
-    <Card className="bg-white/50">
+    <Card className="">
       <CardHeader>
         <CardTitle className="text-center">ملخص الإنتاج والاستهلاك</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table dir="rtl" className="bg-white/10 font-bold">
+        <Table dir="rtl" className=" font-bold">
           <TableHeader>
             <TableRow className="font-bold">
               <TableHead className="text-right font-semibold">المزرعة</TableHead>

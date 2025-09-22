@@ -43,7 +43,7 @@ const MonthlyReportTable: React.FC<MonthlyReportTableProps> =
         header: ({ column }) => {
             return (
               <Button
-              className="border-1 border-slate-500 text-base antialiased text-center font-semibold text-black"
+              className="border border-slate-500 text-base antialiased text-center font-semibold text-black"
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
               >
@@ -143,10 +143,10 @@ const MonthlyReportTable: React.FC<MonthlyReportTableProps> =
         }
       }, [reportData])
   return (
-    <Table dir='rtl' className='bg-white'>
+    <Table dir='rtl' >
       <TableHeader>
         {monthTable.getHeaderGroups().map((headerGroup: { id: React.Key | null | undefined; headers: any[]; }) => (
-          <TableRow key={headerGroup.id} className="bg-gray-300">
+          <TableRow key={headerGroup.id} className="bg-gray-200">
             {headerGroup.headers.map((header: { id: React.Key | null | undefined; isPlaceholder: any; column: { columnDef: { header: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | React.ComponentType<any> | null | undefined; }; }; getContext: () => any; }) => (
               <TableHead key={header.id} className="text-center font-bold font-sans">
                 {header.isPlaceholder
@@ -177,7 +177,7 @@ const MonthlyReportTable: React.FC<MonthlyReportTableProps> =
           </TableRow>
         ))}
          {totals && (
-                        <TableRow className="font-bold bg-muted/50">
+                        <TableRow className="font-bold ">
                           <TableCell>الإجمالي</TableCell>
                           <TableCell className="text-center">{totals.death}</TableCell>
                        

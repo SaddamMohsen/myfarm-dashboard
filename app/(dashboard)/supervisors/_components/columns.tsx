@@ -19,7 +19,7 @@ export const columns: ColumnDef<SuperVisor>[] = [
     header: ({ column }) => {
       return (
         <Button
-        className="border-1 border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black"
+        className="border border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >

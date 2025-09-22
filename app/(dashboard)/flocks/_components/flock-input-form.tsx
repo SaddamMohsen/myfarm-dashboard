@@ -104,7 +104,7 @@ export default function FlockInputForm({ open, onClose }: FlockInputFormProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button className='btn-myfarm' onClick={() => setIsOpen(true)}>
+        <Button className='btn-myfarm !important' onClick={() => setIsOpen(true)}>
           <Plus className="ml-2 h-4 w-4 bg-blue-500/10" />
           إضافة قطيع جديد
         </Button>

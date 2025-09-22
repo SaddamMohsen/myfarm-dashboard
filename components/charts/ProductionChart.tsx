@@ -146,7 +146,7 @@ export function ProductionChartComponent({
             </Pie>
             <ChartLegend
               content={<ChartLegendContent payload={chartData} nameKey="farmName" />}
-              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+              className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
             />
           </PieChart>
           

@@ -55,12 +55,12 @@ export function FarmsDataTable<TData, TValue>({
                 <TableHeader className="relative md:contents md:content-stretch w-auto  justify-stretch md:min-w-fit border-b  hover:bg-slate-100">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow
-                      className="flex-none border-1 border-slate-700 justify-center justify-self-center hover:p-5"
+                      className="flex-none border border-slate-700 justify-center justify-self-center hover:p-5"
                       key={headerGroup.id}>
                       {headerGroup.headers.map((header) => {
                         return (
                           <TableHead
-                            className="border-1 border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black"
+                            className="border border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black"
                             key={header.id}>
                             {header.isPlaceholder
                               ? null
@@ -78,7 +78,7 @@ export function FarmsDataTable<TData, TValue>({
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
                       <TableRow
-                        className="border-1 cursor-pointer content-center self-center font-semibold border-black items-center hover:ring-2 hover:ring-blue"
+                        className="border cursor-pointer content-center self-center font-semibold border-black items-center hover:ring-2 hover:ring-blue"
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}>
                         {row.getVisibleCells().map((cell) => (

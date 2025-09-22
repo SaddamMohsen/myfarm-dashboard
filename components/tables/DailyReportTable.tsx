@@ -19,13 +19,13 @@ interface DailyReportTableProps {
 
 export function DailyReportTable({ data, isLoading }: DailyReportTableProps) {
   return (
-    <div className="card bg-white/50">
+    <div className="card ">
       <div className="card-header">
         <h2 className="text-center">تقرير الإنتاج اليومي</h2>
       </div>
       <div className="card-content">
         <table className="table">
-          <thead className="bg-bone text-anti-flash_white-900">
+          <thead className=" ">
             <tr>
               <th className="text-right">المزرعة</th>
               <th className="text-center">إنتاج البيض (كرتون)</th>

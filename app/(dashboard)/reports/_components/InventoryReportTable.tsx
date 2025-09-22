@@ -59,7 +59,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
    if (isItemsLoading) {
     return (
       <div className="flex justify-center bg-white items-center 
-      border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
+      border-radius my-6  md:w-full  py-4 md:px-1 p-6 rounded-md  ">
         <Loader />
       </div>
     );
@@ -122,7 +122,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
 
           {/* Summary: Overall */}
           {overallItems.length > 0 && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className=" p-4 rounded-lg">
               <h3 className="font-semibold text-right mb-2">ملخص إجمالي حسب الصنف</h3>
               <div className="overflow-x-auto">
                 <Table>

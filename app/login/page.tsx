@@ -81,7 +81,7 @@ export default function Login({
   // };
 
   return (
-    <div className=" flex flex-col w-full min-h-screen px-8 lg:max-w-screen-lg  justify-center items-center gap-2" dir="rtl">
+    <div className=" flex flex-col w-full min-h-screen px-8 lg:max-w-(--breakpoint-lg)  justify-center items-center gap-2" dir="rtl">
       <Link
         href="/"
         className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm">
@@ -128,7 +128,7 @@ export default function Login({
         />
        <SubmitButton
           formAction={signIn}
-          className="bg-gradient-to-b from-blue-500 to to-blue-700/40
+          className="bg-linear-to-b from-blue-500 to to-blue-700/40
  rounded-md px-4 py-2 font-semibold antialiased text-foreground mb-2"
           pendingText=" جاري تسجيل الدخول....."
           icon={<Loader/>}
@@ -137,7 +137,7 @@ export default function Login({
         </SubmitButton>
         {/* <SubmitButton
           formAction={signUp}
-          className="border border-foreground/20 bg-gradient-to-b from-blue-500/20 to to-blue-700/40 antialiased rounded-md px-4 py-2 font-semibold text-foreground mb-2"
+          className="border border-foreground/20 bg-linear-to-b from-blue-500/20 to to-blue-700/40 antialiased rounded-md px-4 py-2 font-semibold text-foreground mb-2"
           pendingText="جاري تسجيل الحساب..... ">
           إنشاء حساب
         </SubmitButton> */}

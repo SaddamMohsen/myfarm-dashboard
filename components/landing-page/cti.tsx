@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export default function CTA() {
   return (
-    <section className="py-20 bg-gradient-to-r from-secondary to-accent">
+    <section className="py-20 bg-linear-to-r from-secondary to-accent">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-melon-200 mb-6">هل انت مستعد لتحسين كفاءة مراقبة مزارعك ؟</h2>
         <p className="text-xl text-melon-200 mb-8 max-w-2xl mx-auto">

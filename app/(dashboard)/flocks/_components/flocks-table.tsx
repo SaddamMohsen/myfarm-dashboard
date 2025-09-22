@@ -56,16 +56,23 @@ export default function FlocksTable({ flocks, onEdit, onView }: FlocksTableProps
       onView(flock)
     }
   }
+  const calculateAge = (flock: FlockBatch) => {
+    const today = new Date()
+    const acquisitionDate = new Date(flock.date_of_acquisition)
+    const age = today.getTime() - acquisitionDate.getTime()
+    return Math.floor(age / (1000 * 60 * 60 * 24))
+  }
 
   return (
-    <div className="w-full">
-      <Table>
-        <TableHeader>
+    <div className="w-full font-semibold text-center font-serif" dir='rtl'>
+      <Table dir='rtl'>
+        <TableHeader className=' font-semibold font-serif'>
           <TableRow>
             <TableHead>المزرعة</TableHead>
             <TableHead>العنبر</TableHead>
             <TableHead>الكمية</TableHead>
-            <TableHead>العمر</TableHead>
+            <TableHead>العمر يوم الوصول</TableHead>
+            <TableHead>العمر اليوم </TableHead>
             <TableHead>رقم الدفعة</TableHead>
             <TableHead>تاريخ الحصول</TableHead>
             <TableHead>رقم الفاتورة</TableHead>
@@ -84,6 +91,7 @@ export default function FlocksTable({ flocks, onEdit, onView }: FlocksTableProps
               </TableCell>
               <TableCell>{flock.quantity}</TableCell>
               <TableCell>{flock.age} يوم</TableCell>
+              <TableCell>{calculateAge(flock)} يوم</TableCell>
               <TableCell>{flock.batch_no}</TableCell>
               <TableCell>
                 {flock.date_of_acquisition 

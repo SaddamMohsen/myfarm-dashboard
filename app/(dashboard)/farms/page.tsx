@@ -21,7 +21,7 @@ export default function Page() {
   const { data, isLoading, error } = useFetchAllFarmsQuery();
   if (isLoading) {
     return (
-      <div className="flex justify-center bg-white items-center border-radius my-6  md:w-full  py-4 md:px-[0.25rem] p-6 rounded-md  ">
+      <div className="flex justify-center bg-white items-center border-radius my-6  md:w-full  py-4 md:px-1 p-6 rounded-md  ">
         <p className="text"> تحميــــــل....</p>
         <Loader  />
       </div>

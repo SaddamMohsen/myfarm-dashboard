@@ -50,7 +50,7 @@ export function AmberDailyReport({ data, isLoading, farmId, date }: AmberDailyRe
       <CardContent>
         <Table dir="rtl" >
           <TableHeader className="">
-            <TableRow className="bg-ebony-900 text-black-200 border-1 border-melon-400 text-center">
+            <TableRow className="bg-ebony-900 text-black-200 border border-melon-400 text-center">
               <TableHead className="text-right">رقم العنبر</TableHead>
               <TableHead className="text-right">عدد الدجاج</TableHead>
               <TableHead className="text-center">النافق</TableHead>

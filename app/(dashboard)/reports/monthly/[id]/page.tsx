@@ -76,7 +76,7 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
         header: ({ column }) => {
             return (
               <Button
-              className="border-1 border-slate-500 text-base antialiased text-center font-semibold text-black"
+              className="border border-slate-500 text-base antialiased text-center font-semibold text-black"
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
               >
@@ -222,7 +222,7 @@ export default function MonthlyReportPage({ params }: { params: { id: string } }
 
   return (
     <div className="container mx-auto gap-4 py-10" dir="rtl">
-      <Card className="bg-white/90">
+      <Card >
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>التقرير الشهري - {reportData[0]?.farm_name}</CardTitle>
           <Calendar

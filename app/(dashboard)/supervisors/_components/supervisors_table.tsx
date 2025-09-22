@@ -103,10 +103,10 @@ export function SupervisorTable({ data }: { data: any[] }) {
         <Table className="relative border-2 ring-1 ring-slate-500 border-slate-300 md:w-full rounded-md bg-white px-0">
           <TableHeader className="relative md:contents md:content-stretch w-auto  justify-stretch md:min-w-fit border-b  hover:bg-slate-100">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow   className="flex-none border-1 border-slate-700 justify-center justify-self-center hover:p-5" key={headerGroup.id}>
+              <TableRow   className="flex-none border border-slate-700 justify-center justify-self-center hover:p-5" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead  className="border-1 border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black" key={header.id}>
+                    <TableHead  className="border border-slate-500 text-base antialiased bg-slate-50 text-center font-semibold text-black" key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -123,7 +123,7 @@ export function SupervisorTable({ data }: { data: any[] }) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                 className="border-1 cursor-pointer content-center self-center font-semibold border-black items-center hover:ring-2 hover:ring-blue"
+                 className="border cursor-pointer content-center self-center font-semibold border-black items-center hover:ring-2 hover:ring-blue"
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
