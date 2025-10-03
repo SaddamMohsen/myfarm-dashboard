@@ -49,7 +49,7 @@ export const Navigation = () => {
             size="sm"
             variant="outline"
             className={cn(
-              "font-semibold text-xl bg-white/10  hover:bg-white/20 hover:text-white",
+              "font-semibold text-xl bg-blue-700/10  hover:bg-white/20 hover:text-blue-200",
               " border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none",
               " text-white focus:bg-white/30 transition-all",
               {}

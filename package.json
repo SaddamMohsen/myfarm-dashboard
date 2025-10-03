@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "vercel:prod": "vercel --prod --yes"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
