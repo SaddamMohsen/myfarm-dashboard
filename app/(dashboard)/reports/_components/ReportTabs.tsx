@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useFetchAllFarmsQuery, useGetMonthlyReportMutation } from "@/lib/services/farms-api";
 import MonthlyReportTable from './MonthlyReportTable';
 import MedicationVaccinationTable from './MedicationVaccinationTable';
 import { DatePicker } from '@/components/date-picker';
 import ProductionRepHeader from './ProductionRepHeader';
 import InventoryReportTable from './InventoryReportTable';
+import { useReactToPrint } from 'react-to-print';
+import { Printer } from 'lucide-react';
 
 interface ReportTabsProps {
   onTabChange: (tab: string, id: Number) => void;
@@ -21,8 +24,14 @@ interface Farm {
 const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => {
   const [activeTab, setActiveTab] = useState("production");
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const { data: farms, isLoading } = useFetchAllFarmsQuery();
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `تقرير-${activeTab}-${selectedFarm?.farm_name || 'الكل'}`,
+  });
 
   const handleTabChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const tab = e.target.value;
@@ -110,6 +119,14 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
               <option value="medication">تقرير العلاجات واللقاحات</option>
             </select>
           </div>
+
+          <div className="flex flex-col justify-center items-start p-4 mx-1">
+            <label className="font-light text-slate-600 text-xs mb-1">طباعة:</label>
+            <Button onClick={() => handlePrint()} variant="outline" className="gap-2">
+              <Printer className="h-4 w-4" />
+              طباعة التقرير
+            </Button>
+          </div>
 {/* 
           <div className="flex flex-col justify-center items-start p-4 mx-1 w-full">
             <label htmlFor="start-date" className="font-light text-slate-600 text-xs">تاريخ البداية:</label>
@@ -130,7 +147,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ onTabChange, onFarmChange}) => 
       </Card>
 
       {/* Report Content */}
-      <div className="w-full">
+      <div ref={printRef} className="w-full print:p-4">
         {renderContent()}
       </div>
     </div>

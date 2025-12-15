@@ -95,3 +95,35 @@ body,
   text-gray-100 transition-all;
 }
 }
+
+/* Print styles for PDF export */
+@media print {
+  /* Hide controls during print */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure proper RTL and page formatting */
+  body {
+    direction: rtl;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Prevent table rows from breaking across pages */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+  
+  /* Ensure proper margins */
+  @page {
+    margin: 1cm;
+  }
+}

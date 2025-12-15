@@ -38,3 +38,5 @@ next-env.d.ts
 .vercel
 .env
 .gitignore
+.cursor/mcp.json
+db/myfarmdb20012025.sql

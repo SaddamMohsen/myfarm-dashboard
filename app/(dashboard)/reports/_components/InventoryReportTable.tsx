@@ -49,7 +49,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
     
     await getInventoryReport({
       farmId: farmId || undefined,
-      item_code: itemCode || undefined,
+      item_code: itemCode && itemCode !== "all" ? itemCode : undefined,
       amber_id: amberId ? Number(amberId) : undefined,
     });
   };
@@ -81,12 +81,13 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
               <Label>كود الصنف</Label>
               <Select onValueChange={(value) => setItemCode(value)}>
                  <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="حدد الصنف" />
+        <SelectValue placeholder="كل الاصناف" />
       </SelectTrigger>
        <SelectContent>
         <SelectGroup>
           <SelectLabel>الاصناف</SelectLabel>
-          {itemsData && itemsData.length > 0 &&!isItemsLoading ?
+          <SelectItem value="all">كل الاصناف</SelectItem>
+          {itemsData && itemsData.length > 0 && !isItemsLoading ?
                 itemsData?.map((item: any) => (
                   <SelectItem key={item.item_code} value={item.item_code}>
                     {item.item_code} - {item.item_name}
@@ -121,7 +122,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
           </div>
 
           {/* Summary: Overall */}
-          {overallItems.length > 0 && (
+          {/* {overallItems.length > 0 && (
             <div className=" p-4 rounded-lg">
               <h3 className="font-semibold text-right mb-2">ملخص إجمالي حسب الصنف</h3>
               <div className="overflow-x-auto">
@@ -131,7 +132,7 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
                       <TableHead className="text-right">الصنف</TableHead>
                       <TableHead className="text-right">الكمية</TableHead>
                      {/* // <TableHead className="text-right">الكمية الصغيرة</TableHead>
-                      <TableHead className="text-right">عدد السجلات</TableHead> */}
+                      <TableHead className="text-right">عدد السجلات</TableHead> 
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -140,57 +141,76 @@ export default function InventoryReportTable({ farmId, farmName }: InventoryRepo
                         <TableCell className="text-right">{item.item_name}</TableCell>
                         <TableCell className="text-right">{item.total_quantity}</TableCell>
                        {/* // <TableCell className="text-right">{item.total_small_quantity}</TableCell>
-                        <TableCell className="text-right">{item.records_count}</TableCell> */}
+                        <TableCell className="text-right">{item.records_count}</TableCell> 
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
             </div>
-          )}
+          )} */}
 
-          {/* Table: Per farm + item */}
-          {farmSummaries.length > 0 ? (
-            <div className="overflow-x-auto">
-              <></>
-              <Table>
-                
-               
-                  {farmSummaries.map((farm) =>
+          {/* Pivot Table: Farms as rows, Items as columns */}
+          {farmSummaries.length > 0 ? (() => {
+            // Extract unique item names for column headers
+            const allItemNames = [...new Set(
+              farmSummaries.flatMap(farm => farm.items.map(item => item.item_name))
+            )];
+
+            // Build lookup map for fast access: { farmName: { itemName: quantity } }
+            const pivotData = farmSummaries.map(farm => {
+              const itemMap: Record<string, number> = {};
+              farm.items.forEach(item => {
+                itemMap[item.item_name] = item.total_quantity;
+              });
+              return { farm_name: farm.farm_name, items: itemMap };
+            });
+
+            return (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right font-bold bg-gray-100 sticky right-0">المزرعة</TableHead>
+                      {allItemNames.map((itemName) => (
+                        <TableHead key={itemName} className="text-center font-bold bg-gray-100">
+                          {itemName}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
-                  <TableRow key={`${farm.farm_name}`}>
-                  <TableHead className="text-center font-bold text-black-100 bg-black-900 w-full" colSpan={5}>
-                  {farm.farm_name}</TableHead>
-                    {/* <TableCell className="text-center font-bold" colSpan={5}>
-                      {farm.farm_name}
-                    </TableCell> */}
-                  </TableRow>
-                  
-                  <TableRow >
-                    {/* <TableHead className="text-right">المزرعة</TableHead> */}
-                    <TableHead className="text-right" >الصنف</TableHead>
-                    <TableHead className="text-right" colSpan={3}>الكمية</TableHead>
-                    {/* <TableHead className="text-right">الكمية الصغيرة</TableHead>
-                    <TableHead className="text-right">عدد السجلات</TableHead> */}
-                  </TableRow>
-              
-               
-                   { farm.items.map((it) => (
-                      <TableRow key={`${it.item_name}`}>
-                        
-                        <TableCell className="text-right">{it.item_name}</TableCell>
-                        <TableCell className="text-right">{it.total_quantity}</TableCell>
-                        {/* <TableCell className="text-right">{it.total_small_quantity}</TableCell>
-                        <TableCell className="text-right">{it.records_count}</TableCell> */}
+                    {pivotData.map((farm) => (
+                      <TableRow key={farm.farm_name}>
+                        <TableCell className="text-right font-medium bg-gray-50 sticky right-0">
+                          {farm.farm_name}
+                        </TableCell>
+                        {allItemNames.map((itemName) => (
+                          <TableCell key={itemName} className="text-center">
+                            {farm.items[itemName] ?? 0}
+                          </TableCell>
+                        ))}
                       </TableRow>
                     ))}
-                  
-                  </TableBody>)}
-                  
-              
-              </Table>
-            </div>
-          ) : (
+                    {/* Totals Row */}
+                    <TableRow className="bg-blue-100 font-bold border-t-2 border-blue-300">
+                      <TableCell className="text-right font-bold bg-blue-200 sticky right-0">
+                        اجماليات
+                      </TableCell>
+                      {allItemNames.map((itemName) => {
+                        const total = pivotData.reduce((sum, farm) => sum + (farm.items[itemName] ?? 0), 0);
+                        return (
+                          <TableCell key={`total-${itemName}`} className="text-center font-bold">
+                            {total}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            );
+          })() : (
             data && (
               <div className="text-center py-8 text-gray-500">
                 لا توجد بيانات للمدخلات المحددة

@@ -451,6 +451,188 @@ console.log('daily report',report);
     console.error("خطأ في جلب تقرير الإنتاج:", error);
     return c.json({ error: error.message }, 400);
   }
+}).get("/production-by-amber/:id", zValidator("query",
+  z.object({
+    start_date: z.string(),
+    end_date: z.string(),
+  }),
+  (result, c) => {
+    if (!result.success) {
+      console.log("invalid values", result.error);
+      return c.text("Invalid Values!", 400);
+    }
+  }), async (c) => {
+  try {
+    const { user } = await getUser(c);
+    const schema = user?.user_metadata.schema ?? 'public';
+    const supabase = getSupabase(c);
+    const farmId = c.req.param('id');
+    const startDate = c.req.query('start_date');
+    const endDate = c.req.query('end_date');
+
+    if (!farmId) {
+      return c.json({ error: "معرف المزرعة مطلوب" }, 400);
+    }
+
+    if (!startDate || !endDate) {
+      return c.json({ error: "تاريخ البداية والنهاية مطلوبان" }, 400);
+    }
+
+    // Validate dates
+    const startParsed = new Date(startDate);
+    const endParsed = new Date(endDate);
+
+    if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
+      return c.json({ error: "تنسيق التاريخ غير صحيح" }, 400);
+    }
+
+    if (startParsed > endParsed) {
+      return c.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, 400);
+    }
+
+    // Get production data for the farm
+    const { data, error } = await supabase
+      .schema(schema)
+      .from('production')
+      .select(`
+        *,
+        farms!inner (
+          farm_name
+        )
+      `)
+      .eq('farm_id', parseInt(farmId))
+      .gte('prodDate', startDate)
+      .lte('prodDate', endDate)
+      .order('amber_id', { ascending: true })
+      .order('prodDate', { ascending: true });
+
+    if (error) throw error;
+
+    // Get farm name
+    const { data: farmData, error: farmError } = await supabase
+      .schema(schema)
+      .from('farms')
+      .select('farm_name')
+      .eq('id', parseInt(farmId))
+      .single();
+
+    if (farmError) throw farmError;
+
+    // Group data by amber_id
+    const amberSummaries = data.reduce((acc: any, item: any) => {
+      const amberId = item.amber_id || 0;
+
+      if (!acc[amberId]) {
+        acc[amberId] = {
+          amber_id: amberId,
+          total_prod_carton: 0,
+          total_prod_tray: 0,
+          total_out_carton: 0,
+          total_out_tray: 0,
+          total_death: 0,
+          total_incom_feed: 0,
+          total_intak_feed: 0,
+          total_remain_feed: 0,
+          days_count: 0,
+          records: []
+        };
+      }
+
+      acc[amberId].total_prod_carton += (item.prodCarton || 0);
+      acc[amberId].total_prod_tray += (item.prodTray || 0);
+      acc[amberId].total_out_carton += (item.outCarton || 0);
+      acc[amberId].total_out_tray += (item.outTray || 0);
+      acc[amberId].total_death += (item.death || 0);
+      acc[amberId].total_incom_feed += (item.incom_feed || 0);
+      acc[amberId].total_intak_feed += (item.intak_feed || 0);
+      acc[amberId].total_remain_feed += (item.remain_feed || 0);
+      acc[amberId].days_count += 1;
+      acc[amberId].records.push(item);
+
+      return acc;
+    }, {});
+
+    // Convert tray to carton for each amber
+    const processedAmberSummaries = Object.values(amberSummaries).map((amberSummary: any) => {
+      const trayCount = amberSummary.total_prod_tray;
+      const cartonFromTray = Math.floor(trayCount / 12);
+      const remainderTray = trayCount % 12;
+
+      return {
+        ...amberSummary,
+        total_prod_carton: amberSummary.total_prod_carton + cartonFromTray,
+        total_prod_tray: remainderTray
+      };
+    });
+
+    // Get remaining hens count for each amber
+    const amberSummariesWithHens = await Promise.all(
+      processedAmberSummaries.map(async (amberSummary: any) => {
+        let remainingHens = 0;
+        try {
+          const { data: inventoryData, error: inventoryError } = await supabase
+            .schema(schema)
+            .from('inventory')
+            .select('quantity')
+            .eq('item_code', '001-001')
+            .eq('farm_id', parseInt(farmId))
+            .eq('amber_id', amberSummary.amber_id);
+
+          if (!inventoryError && inventoryData) {
+            if (Array.isArray(inventoryData) && inventoryData.length > 0) {
+              remainingHens = inventoryData.reduce(
+                (acc: number, item: any) => acc + Number(item.quantity), 0
+              );
+            }
+          }
+        } catch (error) {
+          console.log(`No inventory data found for amber ${amberSummary.amber_id}:`, error);
+          remainingHens = 0;
+        }
+
+        // Remove the records array to keep response size small
+        const { records, ...summaryWithoutRecords } = amberSummary;
+        return {
+          ...summaryWithoutRecords,
+          remaining_hens: remainingHens
+        };
+      })
+    );
+
+    // Sort by amber_id
+    amberSummariesWithHens.sort((a: any, b: any) => a.amber_id - b.amber_id);
+
+    // Calculate overall totals
+    const overallSummary = amberSummariesWithHens.reduce((acc: any, amberSummary: any) => {
+      return {
+        total_prod_carton: (acc.total_prod_carton || 0) + amberSummary.total_prod_carton,
+        total_prod_tray: (acc.total_prod_tray || 0) + amberSummary.total_prod_tray,
+        total_out_carton: (acc.total_out_carton || 0) + amberSummary.total_out_carton,
+        total_out_tray: (acc.total_out_tray || 0) + amberSummary.total_out_tray,
+        total_death: (acc.total_death || 0) + amberSummary.total_death,
+        total_incom_feed: (acc.total_incom_feed || 0) + amberSummary.total_incom_feed,
+        total_intak_feed: (acc.total_intak_feed || 0) + amberSummary.total_intak_feed,
+        total_remain_feed: (acc.total_remain_feed || 0) + amberSummary.total_remain_feed,
+        total_remaining_hens: (acc.total_remaining_hens || 0) + amberSummary.remaining_hens,
+        days_count: (acc.days_count || 0) + amberSummary.days_count
+      };
+    }, {});
+
+    return c.json({
+      farmId,
+      farm_name: farmData?.farm_name,
+      period: {
+        start_date: startDate,
+        end_date: endDate
+      },
+      amber_summaries: amberSummariesWithHens,
+      overall_summary: overallSummary
+    });
+
+  } catch (error: any) {
+    console.error("خطأ في جلب تقرير الإنتاج حسب العنبر:", error);
+    return c.json({ error: error.message }, 400);
+  }
 }).get("/inventory/:id?", zValidator("query",
   z.object({
     item_code: z.string().optional(),

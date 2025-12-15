@@ -404,6 +404,35 @@ export const farmsApi = createApi({
         }
       },
     }),
+    getProductionByAmberReport: builder.mutation<any, { 
+      farmId: string; 
+      start_date: string; 
+      end_date: string 
+    }>({
+      async queryFn(params, _queryApi, _extraOptions, _baseQuery) {
+        try {
+          const res = await client.api.reports["production-by-amber"][":id"].$get({
+            param: {
+              id: params.farmId
+            },
+            query: {
+              start_date: params.start_date,
+              end_date: params.end_date,
+            }
+          });
+          const data = await res.json();
+          return { data };
+        } catch (error: any) {
+          return {
+            error: {
+              status: 500,
+              statusText: `Internal Server Error ${error}`,
+              data: error,
+            },
+          };
+        }
+      },
+    }),
     getInventoryReport: builder.mutation<
   any,
   {
@@ -712,6 +741,7 @@ export const {
   useGetMedicationReportMutation,
   useGetVaccinationReportMutation,
   useGetProductionReportMutation,
+  useGetProductionByAmberReportMutation,
   useGetInventoryReportMutation,
   useFetchItemsQuery,
   // Flock Management Hooks
