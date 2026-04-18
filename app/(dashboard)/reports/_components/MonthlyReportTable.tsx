@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react"
 import {
   Table,
   TableBody,
@@ -6,197 +6,189 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { ArrowUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ColumnDef, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { format } from 'date-fns';
+} from "@/components/ui/table"
+import { ArrowLeft, ArrowRight, ArrowUpDown, SlidersHorizontal } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ColumnDef, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
+import { format } from "date-fns"
 
 interface MonthlyReport {
-   
-    prod_date: string
-      death: number
-      income_feed: number
-      intak_feed: number
-      remain_feed: number
-      prod_egg: number[]
-      out_egg: number[]
-      remain_egg: number[]
-      farm_name: string
-    }
-
-interface MonthlyReportTableProps {
-  table: any; // يمكنك تحديد نوع الجدول بشكل أكثر دقة إذا كان لديك نوع محدد
-  reportData:MonthlyReport[],
-  isLoading?:Boolean,
-  onRowClick: (row: any) => void; // دالة عند النقر على الصف
+  prod_date: string
+  death: number
+  income_feed: number
+  intak_feed: number
+  remain_feed: number
+  prod_egg: number[]
+  out_egg: number[]
+  remain_egg: number[]
+  remain_hen:number
+  farm_name: string
 }
 
-const MonthlyReportTable: React.FC<MonthlyReportTableProps> = 
-({ table,reportData,isLoading, onRowClick }) => {
+interface MonthlyReportTableProps {
+  table: any
+  reportData: MonthlyReport[]
+  isLoading?: boolean
+  onRowClick: (row: any) => void
+}
 
-
+const MonthlyReportTable: React.FC<MonthlyReportTableProps> = ({ table: _table, reportData, onRowClick }) => {
   const columns = useMemo<ColumnDef<MonthlyReport>[]>(
     () => [
       {
         accessorKey: "prod_date",
-        header: ({ column }) => {
-            return (
-              <Button
-              className="border border-slate-500 text-base antialiased text-center font-semibold text-black"
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-              >
-                التاريخ
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            )
-          },
-        cell: ({ row }) => format(new Date(row.getValue("prod_date")), 'dd/MM/yyyy'),
-        
+        header: ({ column }) => (
+          <Button
+            className="h-auto px-0 text-[11px] font-bold uppercase tracking-widest text-[#8A97B7] hover:bg-transparent"
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+          >
+            Date
+            <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="flex flex-col items-start">
+            <span className="font-manrope text-lg font-extrabold text-[#0F172A]">
+              {format(new Date(row.getValue("prod_date")), "MMM dd, yyyy")}
+            </span>
+            <span className="font-inter text-xs text-[#8A97B7]">
+              {format(new Date(row.getValue("prod_date")), "EEEE")}
+            </span>
+          </div>
+        ),
       },
       {
-        accessorKey: "death",
-        header: "النافق",
-        cell: ({ row }) => <div className="text-center">{row.getValue("death")}</div>,
+        id:'total_hen',
+        header:"نسبة الوفيات",
+        cell:({row})=>{
+          const hens= (Number(row.original.death) / Number(row.original.remain_hen));
+          return <span className="font-manrope text-2xl font-extrabold text-[#0F172A]">{hens.toLocaleString()}%</span>
+        }
       },
       {
-        accessorKey: "prod_egg",
-        header:`إنتاج البيض (طبق)`,
-        cell: ({ row }) => <div className="text-center flex flex-row items-center justify-center">
-        <img src='/img/tray.ico' alt='egg' className='w-12 h-12' />
-        {row.getValue<number[]>("prod_egg")[0]}
-        </div>,
+        id: "total_collected",
+        header: "اجمالي الانتاج",
+        cell: ({ row }) => {
+          const eggs = (Number(row.original.prod_egg[0]/12) + Number(row.original.prod_egg[1])).toFixed(1)
+          return <span className="font-manrope text-2xl font-extrabold text-[#0F172A]">{eggs.toLocaleString()}</span>
+        },
       },
       {
-        accessorKey: "prod_egg_carton",
-        header: "إنتاج البيض (كرتون)",
-        cell: ({ row }) => <div className="text-center">{row.getValue<number[]>("prod_egg")[1]}</div>,
+        id: "crates_full",
+        header: "عدد الكراتين",
+        cell: ({ row }) => <span className="font-inter text-lg text-[#334155]">{row.original.prod_egg[1].toLocaleString()}</span>,
       },
       {
-        accessorKey: "out_egg",
-        header: "البيض الخارج (طبق)",
-        cell: ({ row }) => <div className="text-center">{row.getValue<number[]>("out_egg")[0]}</div>,
+        id: "trays_partial",
+        header: "عدد الاطباق",
+        cell: ({ row }) => <span className="font-inter text-lg text-[#334155]">{row.original.prod_egg[0].toLocaleString()}</span>,
       },
       {
-        accessorKey: "out_egg_carton",
-        header: "البيض الخارج (كرتون)",
-        cell: ({ row }) => <div className="text-center">{row.getValue<number[]>("out_egg")[1]}</div>,
+        id: "outbound",
+        header: "الخارج",
+        cell: ({ row }) => {
+          const outbound = (Number(row.original.out_egg[0]/12) + Number(row.original.out_egg[1])).toFixed(1)
+          return <span className="font-manrope text-2xl font-extrabold text-[#0E8E3A]">{outbound.toLocaleString()}</span>
+        },
       },
       {
-        accessorKey: "remain_egg",
-        header: "البيض المتبقي (طبق)",
-        cell: ({ row }) => <div className="text-center">{row.getValue<number[]>("remain_egg")[0]}</div>,
+        id: "remaining",
+        header: "المتبقي",
+        cell: ({ row }) => {
+          const remaining = (Number(row.original.remain_egg[0]/12) + Number(row.original.remain_egg[1])).toFixed(1)
+          return <span className="font-manrope text-2xl font-extrabold text-[#0F172A]">{remaining}</span>
+        },
       },
       {
-        accessorKey: "remain_egg_carton",
-        header: "البيض المتبقي (كرتون)",
-        cell: ({ row }) => <div className="text-center">{row.getValue<number[]>("remain_egg")[1]}</div>,
-      },
-      {
-        accessorKey: "income_feed",
-        header: "العلف الوارد",
-        cell: ({ row }) => <div className="text-center">{row.getValue("income_feed")}</div>,
-      },
-      {
-        accessorKey: "intak_feed",
-        header: "استهلاك العلف",
-        cell: ({ row }) => <div className="text-center">{row.getValue("intak_feed")}</div>,
-      },
-      {
-        accessorKey: "remain_feed",
-        header: "المتبقي من العلف",
-        cell: ({ row }) => <div className="text-center">{row.getValue("remain_feed")}</div>,
+        id: "status",
+        header: "الحاله",
+        cell: ({ row }) => {
+          const outbound = row.original.out_egg[0] + row.original.out_egg[1] * 30
+          const verified = outbound > 0
+          return (
+            <span
+              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
+                verified ? "bg-[#EAF7EE] text-[#0E8E3A]" : "bg-[#EAF0FF] text-[#5877A8]"
+              }`}
+            >
+              <span className="mr-1.5 text-[10px]">●</span>
+              {verified ? "Verified" : "Pending"}
+            </span>
+          )
+        },
       },
     ],
     []
   )
+
   const monthTable = useReactTable({
     data: reportData,
     columns,
-  // onSortingChange: setSorting,
-       
-   
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // state: {
-    //   sorting,
-    // },
   })
 
-    const totals = useMemo(() => {
-        if (reportData.length === 0) return null
-        return {
-          death: reportData.reduce((sum, row) => sum + row.death, 0),
-          
-          prod_egg_1: reportData.reduce((sum, row) => sum + row.prod_egg[1], 0),
-          prod_egg_0: reportData.reduce((sum, row) => sum + row.prod_egg[0], 0),
-         
-          out_egg_1: reportData.reduce((sum, row) => sum + row.out_egg[1], 0),
-          out_egg_0: reportData.reduce((sum, row) => sum + row.out_egg[0], 0),
-         
-          remain_egg_1: reportData.reduce((sum, row) => 0 + row.remain_egg[1], 0),
-          remain_egg_0: reportData.reduce((sum, row) => 0 + row.remain_egg[0], 0),
-          income_feed: reportData.reduce((sum, row) => sum + row.income_feed, 0),
-          intak_feed: reportData.reduce((sum, row) => sum + row.intak_feed, 0),
-          remain_feed: reportData.reduce((sum, row) => 0 + row.remain_feed, 0),
-        }
-      }, [reportData])
-  return (
-    <Table dir='rtl' >
-      <TableHeader>
-        {monthTable.getHeaderGroups().map((headerGroup: { id: React.Key | null | undefined; headers: any[]; }) => (
-          <TableRow key={headerGroup.id} className="bg-gray-200">
-            {headerGroup.headers.map((header: { id: React.Key | null | undefined; isPlaceholder: any; column: { columnDef: { header: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | React.ComponentType<any> | null | undefined; }; }; getContext: () => any; }) => (
-              <TableHead key={header.id} className="text-center font-bold font-sans">
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {monthTable.getRowModel().rows.map((row: { id: React.Key | null | undefined; 
-        getIsSelected: () => any; original: any; getVisibleCells: () => any[]; }) => (
-          <TableRow
-            key={row.id}
-            data-state={row.getIsSelected() && "selected"}
-            className="text-center font-sans hover:bg-gray-300/50 hover:cursor-pointer hover:font-bold"
-            onClick={() => onRowClick(row.original)} // استدعاء الدالة عند النقر على الصف
-          >
-            {row.getVisibleCells().map((cell: { id: React.Key | null | undefined; column: { columnDef: { cell: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | React.ComponentType<any> | null | undefined; }; }; getContext: () => any; }) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-         {totals && (
-                        <TableRow className="font-bold ">
-                          <TableCell>الإجمالي</TableCell>
-                          <TableCell className="text-center">{totals.death}</TableCell>
-                       
-                          <TableCell className="text-center">{totals.prod_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.prod_egg_1}</TableCell>
-                          
-                          <TableCell className="text-center">{totals.out_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.out_egg_1}</TableCell>
-                        
-                          <TableCell className="text-center">{totals.remain_egg_0}</TableCell>
-                          <TableCell className="text-center">{totals.remain_egg_1}</TableCell>
-                          <TableCell className="text-center">{totals.income_feed}</TableCell>
-                          <TableCell className="text-center">{totals.intak_feed}</TableCell>
-                          <TableCell className="text-center">{totals.remain_feed}</TableCell>
-                        </TableRow>
-         )}
-      </TableBody>
-    </Table>
-  );
-};
+  const visibleRows = monthTable.getRowModel().rows
+  const monthName = reportData[0] ? format(new Date(reportData[0].prod_date), "MMMM") : "this month"
 
-export default MonthlyReportTable; 
+  return (
+    <div className="overflow-hidden rounded-3xl bg-[#F7F9FF]">
+      <div className="flex items-center justify-between border-b border-[#E4EAF8] px-7 py-5">
+        <div>
+          <h3 className="font-manrope text-[32px] font-extrabold uppercase leading-none text-[#0F172A]">Daily Production Log</h3>
+          <p className="mt-2 font-inter text-sm text-[#8A97B7]">Detailed breakdown of collection and outbound logistics.</p>
+        </div>
+        <Button className="h-11 rounded-xl border-0 bg-[#EAF0FF] px-4 font-inter text-xs font-bold uppercase tracking-wider text-[#5877A8] hover:bg-[#DFE8FF]">
+          <SlidersHorizontal className="mr-2 h-3.5 w-3.5" />
+          Toggle Filters
+        </Button>
+      </div>
+
+      <Table>
+        <TableHeader>
+          {monthTable.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="border-b border-[#E4EAF8] bg-[#F2F5FD]">
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className="h-10 px-6 text-center font-inter text-[11px] font-bold uppercase tracking-widest text-[#8A97B7]">
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {visibleRows.map((row) => (
+            <TableRow
+              key={row.id}
+              className="border-b border-[#E4EAF8] bg-white text-center transition-colors hover:bg-[#F8FAFF] hover:cursor-pointer"
+              onClick={() => onRowClick(row.original)}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id} className="px-6 py-4 align-middle">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <div className="flex items-center justify-between px-7 py-5">
+        <p className="font-inter text-sm text-[#8A97B7]">
+          Showing {visibleRows.length} of {reportData.length} days in {monthName}
+        </p>
+        <div className="flex items-center gap-3">
+          <Button type="button" className="rounded-lg p-1.5 text-[#8A97B7] hover:bg-[#EAF0FF]">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <Button type="button" className="rounded-lg p-1.5 text-[#8A97B7] hover:bg-[#EAF0FF]">
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default MonthlyReportTable
